@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -7,55 +7,239 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
-
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-];
-
+import { Box } from "@material-ui/core";
+import { Button } from "@material-ui/core";
+import FilePlaintModal from "./FilePlaintModal";
+import axios from "axios";
+import { useSelector } from "react-redux";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import FormHelperText from "@material-ui/core/FormHelperText";
+import FormControl from "@material-ui/core/FormControl";
+import Select from "@material-ui/core/Select";
+import AboutClient from "../../AboutClient";
 export default function CustomizedTables() {
   const classes = useStyles();
+  const C_id = useSelector((state) => state.Reducer.clientId);
+  const [caseIdforFindlawyer, setFindlawyerForCase] = useState(false);
+  const [rows, setrows] = useState([]);
+  const [type, setType] = useState("");
+  const [lawyermodalopen, setlawyermodal] = useState(false);
+  const [courtmodalopen, setcourtmodal] = useState(false);
+  const [lawyerid, setlawyerid] = useState("");
+  const [courtid, setCourtid] = useState("");
+  const [clientmodal, setclientmodal] = useState(false);
+  const [clientid, setclientid] = useState("");
+  const [caseIdforPayFEE, setCaseidforPayfee] = useState(false);
+
+  const payFeefunction = (id) => {
+    axios
+      .post("/client/def_pay_fees", {
+        case_id: id,
+        client_id: C_id,
+      })
+      .then((res) => setCaseidforPayfee(res.data));
+  };
+  const ClientModalHandler = () => {
+    setclientmodal((state) => !state);
+  };
+  const sendLawyerRequest = (id) => {
+    console.log(id);
+    console.log(caseIdforFindlawyer);
+    console.log(C_id);
+    axios
+      .post("/client/def_request_lawyer", {
+        case_id: caseIdforFindlawyer,
+        lawyer_id: id,
+        client_id: C_id,
+      })
+      .then((res) => setFindlawyerForCase(!res.data));
+  };
+  const findlawyer = () => {
+    axios
+      .post("/client/def_get_lawyers", { case_id: caseIdforFindlawyer })
+      .then((res) => setlawyerRows(res.data));
+  };
+  const [lawyerRows, setlawyerRows] = useState([]);
+
+  useEffect(() => {
+    const f = () => {
+      console.log("F");
+      const url = "/client/cases_against";
+      axios
+        .post(url, { client_id: C_id })
+        .then((res) => {
+          // console.log(res.data);
+          setrows(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
+    f();
+  }, [caseIdforFindlawyer, caseIdforPayFEE]);
 
   return (
-    <TableContainer component={Paper}>
-      <Table className={classes.table} aria-label="customized table">
-        <TableHead>
-          <TableRow>
-            <StyledTableCell align="center">Calories</StyledTableCell>
+    <Box>
+      <Paper className={classes.paper}>
+        <Box align="center">
+          <h1>CASES AGAINST </h1>
+        </Box>
+      </Paper>
+      <TableContainer component={Paper}>
+        {rows.length != 0 && (
+          <Table className={classes.table} aria-label="customized table">
+            <TableHead>
+              <TableRow>
+                <StyledTableCell align="center">CASE ID </StyledTableCell>
+                <StyledTableCell align="center">CASE TITLE</StyledTableCell>
+                <StyledTableCell align="center">
+                  CASE DESCRIPTION
+                </StyledTableCell>
+                <StyledTableCell align="center">
+                  ABOUT PROCECUTOR{" "}
+                </StyledTableCell>
+                <StyledTableCell align="center">{""} </StyledTableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rows.map((row) => (
+                <StyledTableRow key={row.case_id}>
+                  <StyledTableCell align="center">
+                    {row.case_id}
+                  </StyledTableCell>
+                  <StyledTableCell align="center">
+                    {row.case_title}
+                  </StyledTableCell>
+                  <StyledTableCell align="center">
+                    {row.case_desc}
+                  </StyledTableCell>
+                  <StyledTableCell align="center">
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => {
+                        setclientmodal(true);
+                        setclientid(row.client_id);
+                      }}
+                    >
+                      {" "}
+                      CLICK HERE{" "}
+                    </Button>
+                  </StyledTableCell>
+                  <StyledTableCell align="center">
+                    {row.def_lawyer_req_accept ? (
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => {
+                          setCaseidforPayfee(row.case_id);
+                          payFeefunction(row.case_id);
+                        }}
+                      >
+                        PAY FEE
+                      </Button>
+                    ) : (
+                      <div>
+                        {row.def_lawyer_req_send ? (
+                          <Button variant="outlined" color="primary">
+                            REQUEST PENDING{" "}
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outlined"
+                            color="primary"
+                            onClick={() => {
+                              setFindlawyerForCase(row.case_id);
+                              findlawyer();
+                            }}
+                          >
+                            Find Lawyer
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </StyledTableCell>
+                </StyledTableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </TableContainer>
 
-            <StyledTableCell align="center">Calories</StyledTableCell>
-            <StyledTableCell align="center">Fat&nbsp;(g)</StyledTableCell>
-            <StyledTableCell align="center">Carbs&nbsp;(g)</StyledTableCell>
-            <StyledTableCell align="center">Protein&nbsp;(g)</StyledTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <StyledTableRow key={row.name}>
-              <StyledTableCell component="th" scope="row">
-                {row.name}
-              </StyledTableCell>
-              <StyledTableCell align="center">{row.calories}</StyledTableCell>
-              <StyledTableCell align="center">{row.fat}</StyledTableCell>
-              <StyledTableCell align="center">{row.carbs}</StyledTableCell>
-              <StyledTableCell align="center">{row.protein}</StyledTableCell>
-            </StyledTableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+      <div>
+        <br></br>
+        <br></br>
+
+        {lawyerRows.length != 0 && (
+          <TableContainer component={Paper}>
+            <Table className={classes.table} aria-label="customized table">
+              <TableHead>
+                <TableRow>
+                  <StyledTableCell align="center">LAWYER ID</StyledTableCell>
+
+                  <StyledTableCell align="center">LAWYER NAME</StyledTableCell>
+                  <StyledTableCell align="center">MOBILE NO. </StyledTableCell>
+                  <StyledTableCell align="center">EMAIL </StyledTableCell>
+                  <StyledTableCell align="center">CASES WON </StyledTableCell>
+                  <StyledTableCell align="center"> </StyledTableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {lawyerRows.map((lawyerRows) => (
+                  <StyledTableRow key={lawyerRows.lawyer_id}>
+                    <StyledTableCell component="th" scope="row" align="center">
+                      {lawyerRows.lawyer_id}
+                    </StyledTableCell>
+                    <StyledTableCell align="center">
+                      {lawyerRows.lawyer_name}
+                    </StyledTableCell>
+                    <StyledTableCell align="center">
+                      {lawyerRows.mobile_no}
+                    </StyledTableCell>
+                    <StyledTableCell align="center">
+                      {lawyerRows.email}
+                    </StyledTableCell>
+
+                    <StyledTableCell align="center">
+                      {lawyerRows.cases_won}
+                    </StyledTableCell>
+
+                    <StyledTableCell align="center">
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => {
+                          sendLawyerRequest(lawyerRows.lawyer_id);
+                        }}
+                      >
+                        Send Request{" "}
+                      </Button>
+                    </StyledTableCell>
+                  </StyledTableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </div>
+
+      {clientmodal && (
+        <AboutClient
+          open={clientmodal}
+          Handler={() => ClientModalHandler()}
+          id={clientid}
+        />
+      )}
+    </Box>
   );
 }
 const useStyles = makeStyles({
   table: {
-    minWidth:700,
+    minWidth: 700,
+  },
+  formControl: {
+    minWidth: 120,
   },
 });
 const StyledTableCell = withStyles((theme) => ({

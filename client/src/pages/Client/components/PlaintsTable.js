@@ -24,15 +24,25 @@ export default function CustomizedTables({ value }) {
   const [type, setType] = useState("");
   const [open, setOpen] = useState(false);
   const [caseIdforFindlawyer, setFindlawyerForCase] = useState(false);
-  const [lawyerRows, setlawyerRows] = useState([]);
+  const [caseIdforPayFEE, setCaseidforPayfee] = useState(false);
 
+  const [lawyerRows, setlawyerRows] = useState([]);
+  const payFeefunction = (id) => {
+    axios
+      .post("/client/client_pay_fees", {
+        case_id: id,
+        client_id: C_id,
+      })
+      .then((res) => setCaseidforPayfee(true));
+  };
   const sendLawyerRequest = (id) => {
     axios
-      .post("/client/sendlawyerReq", {
+      .post("/client/plaint_request_lawyer", {
         case_id: caseIdforFindlawyer,
         lawyer_id: id,
+        client_id: C_id,
       })
-      .then((res) => console.log(res.data));
+      .then((res) => setFindlawyerForCase(!res.data));
   };
 
   const findlawyerbasedonTYPE = (t) => {
@@ -58,7 +68,7 @@ export default function CustomizedTables({ value }) {
     };
     plaintList();
     return () => console.log("INFO UNMOUNTED");
-  }, [open, caseIdforFindlawyer]);
+  }, [open, caseIdforFindlawyer, caseIdforPayFEE]);
 
   const classes = useStyles();
 
@@ -103,6 +113,8 @@ export default function CustomizedTables({ value }) {
                       DEFENDENT CLIENT NAME{" "}
                     </StyledTableCell>
                     <StyledTableCell align="center"></StyledTableCell>
+
+                    <StyledTableCell align="center"></StyledTableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -135,41 +147,61 @@ export default function CustomizedTables({ value }) {
                         {row.def_client_name}
                       </StyledTableCell>
                       <StyledTableCell align="center">
-                        {row.case_status == "lawyerAcc" ? (
-                          <Button variant="outlined" color="secondary">
-                            PAY FEE{" "}
-                          </Button>
+                        {row.lawyer_req_accept ? (
+                          <p>{row.lawyer_id}</p>
+                        ) : (
+                          <p></p>
+                        )}
+                      </StyledTableCell>
+                      <StyledTableCell align="center">
+                        {row.fees_paid ? (
+                          <p>JUDGE YET TO ASSIGN</p>
                         ) : (
                           <div>
-                            {" "}
-                            {row.case_status == "lawyerReq" ? (
+                            {row.lawyer_req_accept ? (
                               <Button
                                 variant="outlined"
                                 color="secondary"
-                                disabled
+                                onClick={() => {
+                                  setCaseidforPayfee(row.case_id);
+                                  payFeefunction(row.case_id);
+                                }}
                               >
-                                Request Pending{" "}
+                                PAY FEE{" "}
                               </Button>
                             ) : (
                               <div>
-                                {row.verification == 1 ? (
-                                  <Button
-                                    variant="outlined"
-                                    color="primary"
-                                    onClick={() => {
-                                      setFindlawyerForCase(row.case_id);
-                                    }}
-                                  >
-                                    Find Lawyer
-                                  </Button>
-                                ) : (
+                                {" "}
+                                {row.lawyer_req_send ? (
                                   <Button
                                     variant="outlined"
                                     color="secondary"
                                     disabled
                                   >
-                                    Find Lawyer
+                                    Request Pending{" "}
                                   </Button>
+                                ) : (
+                                  <div>
+                                    {row.verification == 1 ? (
+                                      <Button
+                                        variant="outlined"
+                                        color="primary"
+                                        onClick={() => {
+                                          setFindlawyerForCase(row.case_id);
+                                        }}
+                                      >
+                                        Find Lawyer
+                                      </Button>
+                                    ) : (
+                                      <Button
+                                        variant="outlined"
+                                        color="secondary"
+                                        disabled
+                                      >
+                                        Find Lawyer
+                                      </Button>
+                                    )}
+                                  </div>
                                 )}
                               </div>
                             )}
@@ -227,14 +259,21 @@ export default function CustomizedTables({ value }) {
                         <StyledTableCell align="center">
                           CASES WON{" "}
                         </StyledTableCell>
-                        <StyledTableCell align="center">TYPE</StyledTableCell>
+                        <StyledTableCell align="center"> </StyledTableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {lawyerRows.map((lawyerRows) => (
                         <StyledTableRow key={lawyerRows.lawyer_id}>
-                          <StyledTableCell component="th" scope="row">
+                          <StyledTableCell
+                            component="th"
+                            scope="row"
+                            align="center"
+                          >
                             {lawyerRows.lawyer_id}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            {lawyerRows.lawyer_name}
                           </StyledTableCell>
                           <StyledTableCell align="center">
                             {lawyerRows.mobile_no}
@@ -246,19 +285,16 @@ export default function CustomizedTables({ value }) {
                           <StyledTableCell align="center">
                             {lawyerRows.cases_won}
                           </StyledTableCell>
-                          <StyledTableCell align="center">
-                            {lawyerRows.lawyer_type}
-                          </StyledTableCell>
+
                           <StyledTableCell align="center">
                             <Button
                               variant="outlined"
                               color="primary"
                               onClick={() => {
-                                setFindlawyerForCase(false);
                                 sendLawyerRequest(lawyerRows.lawyer_id);
                               }}
                             >
-                              Accept Lawyer{" "}
+                              Send Request{" "}
                             </Button>
                           </StyledTableCell>
                         </StyledTableRow>

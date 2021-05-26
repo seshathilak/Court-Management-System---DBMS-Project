@@ -1,19 +1,15 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import Box from "@material-ui/core/Box";
 import PropTypes from "prop-types";
 import AppBar from "../MyAppbar";
-import Table from "./components/Table";
 import PlaintsTable from "./components/PlaintsTable";
 import HearingsTable from "./components/HearingsTable";
 import ExpiredTable from "./components/ExpiredTable";
 import OngoingTable from "./components/OngoingTable";
 import CaseAgainstTable from "./components/CaseAgainstTable";
-import FindLawyers from "./components/FindLawyers";
-import Paper from "@material-ui/core/Paper";
 import Info from "./components/Info";
 export default function ClientsPage() {
   const classes = useStyles();
@@ -40,8 +36,7 @@ export default function ClientsPage() {
           <Tab label="Hearings" {...a11yProps(2)} />
           <Tab label="Ongoing Cases" {...a11yProps(3)} />
           <Tab label="Expired Cases" {...a11yProps(4)} />
-          <Tab label="Find Lawyers" {...a11yProps(5)} />
-          <Tab label="Case Against" {...a11yProps(6)} />
+          <Tab label="Case Against" {...a11yProps(5)} />
         </Tabs>
         <TabPanel className={classes.table} value={value} index={0}>
           <Info />
@@ -50,23 +45,16 @@ export default function ClientsPage() {
           <PlaintsTable />
         </TabPanel>
         <TabPanel className={classes.table} value={value} index={2}>
-          Hearings
           <HearingsTable />
         </TabPanel>
         <TabPanel className={classes.table} value={value} index={3}>
-          Ongoing Cases
           <OngoingTable />
         </TabPanel>
         <TabPanel className={classes.table} value={value} index={4}>
-          Expired Cases
           <ExpiredTable />
         </TabPanel>
+        
         <TabPanel className={classes.table} value={value} index={5}>
-          Find Lawyers
-          <FindLawyers />
-        </TabPanel>
-        <TabPanel className={classes.table} value={value} index={6}>
-          Case Against
           <CaseAgainstTable />
         </TabPanel>
       </div>

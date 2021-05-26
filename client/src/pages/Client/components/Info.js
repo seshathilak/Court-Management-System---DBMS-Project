@@ -59,10 +59,26 @@ export default function ComplexGrid() {
                       <p> CLIENT DETAILS</p>
                     </h1>
                     <h3>CLIENT ID : {userData.client_id}</h3>
-                    <h3>Name : {userData.client_name}</h3>
-                    <h3>Mobile Number : {userData.mobile_no}</h3>
-                    <h3>Email : {userData.email}</h3>
-                    <h3>Password : {userData.password}</h3>
+                    <h3>
+                      Name :{" "}
+                      {userData.client_name
+                        ? userData.client_name
+                        : "Not available"}
+                    </h3>
+                    <h3>
+                      Mobile Number :{" "}
+                      {userData.mobile_no
+                        ? userData.mobile_no
+                        : "Not available"}
+                    </h3>
+                    <h3>
+                      Email :{" "}
+                      {userData.email ? userData.email : "Not available"}
+                    </h3>
+                    <h3>
+                      Password :{" "}
+                      {userData.password ? userData.password : "Not available"}
+                    </h3>
                   </Grid>
 
                   <Grid item>

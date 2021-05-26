@@ -1,7 +1,7 @@
 import { SETC_ID, SETL_ID, SETJ_ID, SETA_ID, FILE_CASE } from "./Action";
 
 const initialState = {
-  clientId: 22,
+  clientId: 11,
   lawyerId: false,
   judgeId: false,
   adminId: false,
