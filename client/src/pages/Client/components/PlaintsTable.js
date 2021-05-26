@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -10,28 +10,57 @@ import Paper from "@material-ui/core/Paper";
 import { Box } from "@material-ui/core";
 import { Button } from "@material-ui/core";
 import FilePlaintModal from "./FilePlaintModal";
-
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
-const rows = [
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-];
+import axios from "axios";
+import { useSelector } from "react-redux";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import FormHelperText from "@material-ui/core/FormHelperText";
+import FormControl from "@material-ui/core/FormControl";
+import Select from "@material-ui/core/Select";
 export default function CustomizedTables({ value }) {
   console.log("HHHHHHHHHHHHHHHHH");
-
+  const C_id = useSelector((state) => state.Reducer.clientId);
+  const [rows, setrows] = useState([]);
+  const [type, setType] = useState("");
   const [open, setOpen] = useState(false);
+  const [caseIdforFindlawyer, setFindlawyerForCase] = useState(false);
+  const [lawyerRows, setlawyerRows] = useState([]);
+
+  const sendLawyerRequest = (id) => {
+    axios
+      .post("/client/sendlawyerReq", {
+        case_id: caseIdforFindlawyer,
+        lawyer_id: id,
+      })
+      .then((res) => console.log(res.data));
+  };
+
+  const findlawyerbasedonTYPE = (t) => {
+    setType(t);
+    axios
+      .post("/client/findlawyer", { type: t })
+      .then((res) => setlawyerRows(res.data));
+  };
 
   const PlaintModalHandler = () => {
     setOpen((state) => !state);
   };
 
+  useEffect(() => {
+    console.log("FUNCTION");
+    const plaintList = () => {
+      axios
+        .post("/client/plaintslist", { client_id: C_id })
+        .then((response) => {
+          console.log(response.data);
+          setrows(response.data);
+        });
+    };
+    plaintList();
+    return () => console.log("INFO UNMOUNTED");
+  }, [open, caseIdforFindlawyer]);
+
   const classes = useStyles();
-  const [findLawyerState, setfindLawyerState] = useState(false);
 
   return (
     <Box>
@@ -43,110 +72,109 @@ export default function CustomizedTables({ value }) {
             <Box align="center">
               <h1>PLAINTS</h1>
             </Box>
-           
           </Paper>
           <Box align="right">
-              <Button
-                onClick={PlaintModalHandler}
-                variant="contained"
-                color="secondary"
-              >
-                File Plaint{"  "}
-              </Button>
-            </Box>
-            <br></br>
+            <Button
+              onClick={PlaintModalHandler}
+              variant="contained"
+              color="secondary"
+            >
+              File Plaint{"  "}
+            </Button>
+          </Box>
+          <br></br>
           <br></br>
 
-          <TableContainer component={Paper}>
-            <Table className={classes.table} aria-label="customized table">
-              <TableHead>
-                <TableRow>
-                  <StyledTableCell align="center">Calories</StyledTableCell>
-
-                  <StyledTableCell align="center">Calories</StyledTableCell>
-                  <StyledTableCell align="center">Fat&nbsp;(g)</StyledTableCell>
-                  <StyledTableCell align="center">
-                    Carbs&nbsp;(g)
-                  </StyledTableCell>
-                  <StyledTableCell align="center">
-                    Protein&nbsp;(g)
-                  </StyledTableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map((row) => (
-                  <StyledTableRow key={row.name}>
-                    <StyledTableCell component="th" scope="row">
-                      {row.name}
-                    </StyledTableCell>
-                    <StyledTableCell align="center">
-                      {row.calories}
-                    </StyledTableCell>
-                    <StyledTableCell align="center">{row.fat}</StyledTableCell>
-                    <StyledTableCell align="center">
-                      <Button
-                        variant="outlined"
-                        color="secondary"
-                        onClick={() => {
-                          setfindLawyerState(true);
-                        }}
-                      >
-                        Find Lawyer
-                      </Button>
-                    </StyledTableCell>
-                    <StyledTableCell align="center">
-                      {row.protein}
-                    </StyledTableCell>
-                  </StyledTableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-
-          {findLawyerState && (
+          {rows.length != 0 && (
             <TableContainer component={Paper}>
               <Table className={classes.table} aria-label="customized table">
                 <TableHead>
                   <TableRow>
-                    <StyledTableCell align="center">Calories</StyledTableCell>
+                    <StyledTableCell align="center">CASE ID</StyledTableCell>
 
-                    <StyledTableCell align="center">Calories</StyledTableCell>
+                    <StyledTableCell align="center">CASE TITLE</StyledTableCell>
                     <StyledTableCell align="center">
-                      Fat&nbsp;(g)
+                      CASE DETAILS{" "}
                     </StyledTableCell>
                     <StyledTableCell align="center">
-                      Carbs&nbsp;(g)
+                      VERIFICATION STATUS{" "}
                     </StyledTableCell>
                     <StyledTableCell align="center">
-                      Protein&nbsp;(g)
+                      DEFENDENT CLIENT NAME{" "}
                     </StyledTableCell>
+                    <StyledTableCell align="center"></StyledTableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {rows.map((row) => (
-                    <StyledTableRow key={row.name}>
-                      <StyledTableCell component="th" scope="row">
-                        {row.name}
+                    <StyledTableRow key={row.case_id}>
+                      <StyledTableCell
+                        component="th"
+                        scope="row"
+                        align="center"
+                      >
+                        {row.case_id}
                       </StyledTableCell>
                       <StyledTableCell align="center">
-                        {row.calories}
+                        {row.case_title}
                       </StyledTableCell>
                       <StyledTableCell align="center">
-                        {row.fat}
+                        {row.case_desc}
+                      </StyledTableCell>
+
+                      <StyledTableCell align="center">
+                        {row.verification == 1 ? (
+                          <p>Verified</p>
+                        ) : (
+                          <Button variant="outlined" color="secondary" disabled>
+                            Not Verified
+                          </Button>
+                        )}
                       </StyledTableCell>
                       <StyledTableCell align="center">
-                        <Button
-                          variant="outlined"
-                          color="primary"
-                          onClick={() => {
-                            setfindLawyerState(false);
-                          }}
-                        >
-                          Accept Lawyer{" "}
-                        </Button>
+                        {row.def_client_name}
                       </StyledTableCell>
                       <StyledTableCell align="center">
-                        {row.protein}
+                        {row.case_status == "lawyerAcc" ? (
+                          <Button variant="outlined" color="secondary">
+                            PAY FEE{" "}
+                          </Button>
+                        ) : (
+                          <div>
+                            {" "}
+                            {row.case_status == "lawyerReq" ? (
+                              <Button
+                                variant="outlined"
+                                color="secondary"
+                                disabled
+                              >
+                                Request Pending{" "}
+                              </Button>
+                            ) : (
+                              <div>
+                                {row.verification == 1 ? (
+                                  <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    onClick={() => {
+                                      setFindlawyerForCase(row.case_id);
+                                    }}
+                                  >
+                                    Find Lawyer
+                                  </Button>
+                                ) : (
+                                  <Button
+                                    variant="outlined"
+                                    color="secondary"
+                                    disabled
+                                  >
+                                    Find Lawyer
+                                  </Button>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </StyledTableCell>
                     </StyledTableRow>
                   ))}
@@ -154,11 +182,99 @@ export default function CustomizedTables({ value }) {
               </Table>
             </TableContainer>
           )}
+
+          {caseIdforFindlawyer && (
+            <div>
+              <br></br>
+              <br></br>
+
+              <FormControl className={classes.formControl}>
+                <InputLabel id="demo-simple-select-label">
+                  Lawyer Type{" "}
+                </InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={type}
+                  onChange={(e) => findlawyerbasedonTYPE(e.target.value)}
+                >
+                  <MenuItem value={"civil"}>civil</MenuItem>
+                  <MenuItem value={"criminal"}>criminal</MenuItem>
+                </Select>
+              </FormControl>
+              <br></br>
+              <br></br>
+
+              {lawyerRows.length != 0 && (
+                <TableContainer component={Paper}>
+                  <Table
+                    className={classes.table}
+                    aria-label="customized table"
+                  >
+                    <TableHead>
+                      <TableRow>
+                        <StyledTableCell align="center">
+                          LAWYER ID
+                        </StyledTableCell>
+
+                        <StyledTableCell align="center">
+                          LAWYER NAME
+                        </StyledTableCell>
+                        <StyledTableCell align="center">
+                          MOBILE NO.{" "}
+                        </StyledTableCell>
+                        <StyledTableCell align="center">EMAIL </StyledTableCell>
+                        <StyledTableCell align="center">
+                          CASES WON{" "}
+                        </StyledTableCell>
+                        <StyledTableCell align="center">TYPE</StyledTableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {lawyerRows.map((lawyerRows) => (
+                        <StyledTableRow key={lawyerRows.lawyer_id}>
+                          <StyledTableCell component="th" scope="row">
+                            {lawyerRows.lawyer_id}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            {lawyerRows.mobile_no}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            {lawyerRows.email}
+                          </StyledTableCell>
+
+                          <StyledTableCell align="center">
+                            {lawyerRows.cases_won}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            {lawyerRows.lawyer_type}
+                          </StyledTableCell>
+                          <StyledTableCell align="center">
+                            <Button
+                              variant="outlined"
+                              color="primary"
+                              onClick={() => {
+                                setFindlawyerForCase(false);
+                                sendLawyerRequest(lawyerRows.lawyer_id);
+                              }}
+                            >
+                              Accept Lawyer{" "}
+                            </Button>
+                          </StyledTableCell>
+                        </StyledTableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </div>
+          )}
         </Box>
       )}
     </Box>
   );
 }
+
 const useStyles = makeStyles({
   table: {
     minWidth: 700,
@@ -167,6 +283,10 @@ const useStyles = makeStyles({
     margin: "auto",
     // maxWidth: 1000,
   },
+  formControl: {
+    minWidth: 120,
+  },
+  selectEmpty: {},
 });
 const StyledTableCell = withStyles((theme) => ({
   head: {

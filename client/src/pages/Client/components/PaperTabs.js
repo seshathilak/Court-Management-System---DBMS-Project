@@ -10,11 +10,11 @@ import StepLabel from "@material-ui/core/StepLabel";
 import Button from "@material-ui/core/Button";
 import Link from "@material-ui/core/Link";
 import Typography from "@material-ui/core/Typography";
-
+import { useSelector, useDispatch } from "react-redux";
 import PlaintChooseCourt from "./PlaintChooseCourt";
 import CasePlaint from "./CasePlaint";
 import DefendentPlaint from "./DefendentPlaint";
-
+import axios from "axios";
 const steps = ["Choose Court ", "Case Details ", "Defendant Details"];
 
 function getStepContent(step) {
@@ -30,15 +30,24 @@ function getStepContent(step) {
   }
 }
 
-export default function Checkout() {
+export default function Checkout({ x }) {
+  console.log("PAPER LOGS");
   const classes = useStyles();
+  //   const Cid = useSelector((state) => state.Reducer.client_id);
+
+  const caseDetails = useSelector((state) => state.Reducer.details);
+  console.log(caseDetails);
   const [activeStep, setActiveStep] = React.useState(0);
   const FileCaseFunction = () => {
-    console.log("HIHIII");
+    axios.post("/client/fileCase", caseDetails).then((res) => {
+      if (res.data) x();
+    });
   };
   const handleNext = () => {
-    if (activeStep < steps.length - 1) setActiveStep(activeStep + 1);
-    else FileCaseFunction();
+    if (activeStep < steps.length - 1) {
+      console.log(activeStep);
+      setActiveStep(activeStep + 1);
+    } else FileCaseFunction();
   };
 
   const handleBack = () => {

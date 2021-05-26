@@ -4,7 +4,6 @@ import Modal from "@material-ui/core/Modal";
 import PaperTabs from "./PaperTabs";
 export default function SimpleModal({ Handler, open }) {
   const classes = useStyles();
-
   return (
     <div>
       <Modal
@@ -13,7 +12,9 @@ export default function SimpleModal({ Handler, open }) {
         aria-labelledby="simple-modal-title"
         aria-describedby="simple-modal-description"
       >
-        <PaperTabs />
+        <div>
+          <PaperTabs classes={useStyles.paper} x={() => Handler()} />
+        </div>
       </Modal>
     </div>
   );

@@ -22,7 +22,8 @@ export default function SignUp({ Handler }) {
   const [clientmobile, setClientMobile] = useState();
   const [clientpsw, setClientPsw] = useState();
   const [emailalready, setemailalready] = useState(false);
-  const idcheck = useSelector((state) => !!state.Reducer.client_id);
+
+  const idcheck = useSelector((state) => !!state.Reducer.clientId);
 
   const history = useHistory();
   const handleSubmit = (e) => {

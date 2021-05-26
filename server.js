@@ -44,7 +44,7 @@ app.post("/client/signup", (req, res) => {
             [email, pwd],
             (err2, result2) => {
               if (err2) throw err2;
-              // console.log(result2);
+              console.log(result2);
               res.json(result2);
             }
           );
@@ -64,6 +64,7 @@ app.post("/client/login", (req, res) => {
   db.query(sql, [c_id, pwd], (err, result) => {
     if (err) res.send({ err: err });
     if (result.length > 0) {
+      console.log(result);
       res.send(true);
     } else res.send(false);
   });
@@ -97,25 +98,66 @@ app.post("/client/clientEditInfo", (req, res) => {
   });
 });
 
-// 
+//DONE
 app.post("/client/fileCase", (req, res) => {
   let case_details = {
-    client_id: 1,
-    court_id: req.body.courtid,
+    client_id: req.body.client_id,
+    court_id: req.body.court_id,
     case_title: req.body.case_title,
-    case_desc: req.body.casedesc,
-    case_type: req.body.casetype,
-    def_client_name: req.body.defname,
-    def_client_email: req.body.defemail,
+    case_desc: req.body.case_desc,
+    case_type: req.body.case_type,
+    def_client_name: req.body.def_client_name,
+    def_client_email: req.body.def_client_email,
+    case_status: "notVerified",
   };
   let sql = "INSERT INTO cases set ?";
   db.query(sql, case_details, (err, result) => {
     if (err) throw err;
     console.log(result);
+    res.send(true);
+  });
+});
+
+//DONE
+app.post("/client/plaintslist", (req, res) => {
+  let sql = `select * from cases where fee_status='0' and client_id=${req.body.client_id}`;
+  db.query(sql, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    if (result.length <= 0) {
+      console.log("No plaints cases");
+      res.send("No plaints cases");
+    } else {
+      console.log(result);
+      res.json(result);
+    }
+  });
+});
+// DONE
+app.post("/client/findlawyer", (req, res) => {
+  const type = req.body.type;
+  const sql = "SELECT * FROM lawyers WHERE lawyer_type = ?";
+  db.query(sql, [type], (err, result) => {
+    if (err) throw err;
+    console.log(result);
+    res.send(result);
+  });
+});
+
+app.post("/client/sendlawyerReq", (req, res) => {
+  let sql = `update cases set case_status='lawyerReq' ,lawyer_id=${req.body.lawyer_id} where case_id=${req.body.case_id} `;
+  db.query(sql, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    console.log("send lawyer Lawyer");
+    console.log(result);
+    res.send(result);
   });
 });
 app.post("/client/hearing:client_id", (req, res) => {
-  let sql = `select * from cases where case_status='hearing' and client_id=${req.params.client_id}`;
+  let sql = `select * from cases where case_status='hearing' and client_id=${req.body.client_id}`;
   db.query(sql, (err, result) => {
     if (err) {
       throw err;
@@ -398,27 +440,6 @@ app.post("/lawyer/LExpiredCases:lawyer_id", (req, res) => {
     } else {
       res.json(result);
     }
-  });
-});
-
-app.post("/client/chooseCivilLawyers", (req, res) => {
-  const sql =
-    'SELECT lawyer_name,lawyer_id FROM lawyers WHERE lawyer_type = "Civil"';
-  db.query(sql, (err, result) => {
-    if (err) throw err;
-    console.log(result);
-    res.send(result);
-  });
-});
-
-//ce
-app.post("/client/chooseCriminalLawyers", (req, res) => {
-  const sql =
-    'SELECT lawyer_name,lawyer_id FROM lawyers WHERE lawyer_type = "Criminal"';
-  db.query(sql, (err, result) => {
-    if (err) throw err;
-    console.log(result);
-    res.send(result);
   });
 });
 

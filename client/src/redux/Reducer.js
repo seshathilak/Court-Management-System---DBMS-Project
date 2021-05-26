@@ -6,11 +6,11 @@ const initialState = {
   judgeId: false,
   adminId: false,
   details: {
-    client_id: 1,
+    client_id: "",
     court_id: "",
     case_title: "",
     case_desc: "",
-    case_type: "",
+    case_type: "civil",
     def_client_name: "",
     def_client_email: "",
   },
@@ -29,7 +29,30 @@ const Reducer = (state = initialState, action) => {
     case FILE_CASE:
       return {
         ...state,
-        details: action.details,
+        details: {
+          ...state.details,
+          client_id: action.details.client_id
+            ? action.details.client_id
+            : state.details.client_id,
+          court_id: action.details.court_id
+            ? action.details.court_id
+            : state.details.court_id,
+          case_title: action.details.case_title
+            ? action.details.case_title
+            : state.details.case_title,
+          case_desc: action.details.case_desc
+            ? action.details.case_desc
+            : state.details.case_desc,
+          case_type: action.details.case_type
+            ? action.details.case_type
+            : state.details.case_type,
+          def_client_name: action.details.def_client_name
+            ? action.details.def_client_name
+            : state.details.def_client_name,
+          def_client_email: action.details.def_client_email
+            ? action.details.def_client_email
+            : state.details.def_client_email,
+        },
       };
     default:
       return state;
