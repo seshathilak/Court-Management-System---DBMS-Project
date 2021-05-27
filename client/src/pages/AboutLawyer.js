@@ -8,22 +8,20 @@ import ButtonBase from "@material-ui/core/ButtonBase";
 import axios from "axios";
 import Button from "@material-ui/core/Button";
 import Avatar from "@material-ui/core/Avatar";
-export default function SimpleModal({ Handler, lawyermodalopen,lawyerid }) {
-  //   const C_id = id;
-
-  //   const [userData, setuserData] = useState({});
-  //   console.log(C_id);
-  //   useEffect(() => {
-  //     console.log("FUNCTION");
-  //     const clientProfile = () => {
-  //       axios.post("/client/clientInfo", { client_id: C_id }).then((response) => {
-  //         //   console.log(response.data[0]);
-  //         setuserData(response.data[0]);
-  //       });
-  //     };
-  //     clientProfile();
-  //     return () => console.log("INFO UNMOUNTED");
-  //   }, [open]);
+export default function SimpleModal({ Handler, lawyermodalopen, lawyerid }) {
+  const [lawyerdata, setlawyerdata] = useState(false);
+  console.log(lawyerdata);
+  useEffect(() => {
+    console.log("FUNCTION");
+    const abtlawyerfunction = () => {
+      axios.post("/lawyerDetails", { lawyer_id: lawyerid }).then((response) => {
+        console.log(response.data[0]);
+        setlawyerdata(Object.entries(response.data[0]));
+      });
+    };
+    abtlawyerfunction();
+    return () => console.log("INFO UNMOUNTED");
+  }, []);
   console.log(lawyerid);
   const classes = useStyles();
   const [modalStyle] = useState(getModalStyle);
@@ -55,9 +53,18 @@ export default function SimpleModal({ Handler, lawyermodalopen,lawyerid }) {
                       <h1>
                         <p> LAWYER DETAILS </p>
                       </h1>
-                      <h1>
-                        <p> {lawyerid}</p>
-                      </h1>
+                      {lawyerdata &&
+                        lawyerdata.map((item, index) => (
+                          <div key={index}>
+                            {item[0] != "password" && (
+                              <h3>
+                                <p>
+                                  {item[0]} : {item[1]}
+                                </p>
+                              </h3>
+                            )}
+                          </div>
+                        ))}
                     </div>
                   </Grid>
 

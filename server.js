@@ -150,18 +150,6 @@ app.post("/client/plaint_request_lawyer", (req, res) => {
     res.json(true);
   });
 });
-// //DONE
-// app.post("/client/sendlawyerReq", (req, res) => {
-//   let sql = `update cases set case_status='lawyerReq' ,lawyer_id=${req.body.lawyer_id} where case_id=${req.body.case_id} `;
-//   db.query(sql, (err, result) => {
-//     if (err) {
-//       throw err;
-//     }
-//     console.log("send lawyer Lawyer");
-//     console.log(result);
-//     res.send(result);
-//   });
-// });
 
 //DONE
 app.post("/client/client_pay_fees", (req, res) => {
@@ -281,16 +269,75 @@ app.post("/client/def_get_lawyers", (req, res) => {
   });
 });
 
-//card display of case details when a particular case is clicked
-app.post("/caseDetails", (req, res) => {
-  let case_id = req.body.case_id;
-  const sql = `SELECT * FROM cases WHERE case_id = ${case_id}`;
-  db.query(sql, (err, result) => {
+// DONE
+app.post("/client/findCourt", (req, res) => {
+  const type = req.body.type;
+  console.log(type);
+  console.log("FIND COURTTTT");
+  const sql = "SELECT * FROM courts WHERE court_type = ?";
+  db.query(sql, [type], (err, result) => {
     if (err) throw err;
     console.log(result);
     res.send(result);
   });
 });
+
+//DONE 
+app.post("/caseDetails", (req, res) => {
+  let case_id = req.body.case_id;
+  const sql = `SELECT * FROM cases WHERE case_id = ${case_id}`;
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+    console.log("CASE DETAILS");
+    console.log(result);
+    res.send(result);
+  });
+});
+
+// DONE
+
+app.post("/courtDetails", (req, res) => {
+  let court_id = req.body.court_id;
+  const sql = `SELECT * FROM courts WHERE court_id = ${court_id}`;
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+    console.log("COURT DETAILS");
+
+    console.log(result);
+    res.send(result);
+  });
+});
+// DONE
+
+app.post("/lawyerDetails", (req, res) => {
+  let lawyer_id = req.body.lawyer_id;
+  // console.log(lawyer_id)
+  const sql = `SELECT * FROM lawyers WHERE lawyer_id = ${lawyer_id}`;
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+    console.log("lawyer DETAILS");
+
+    console.log(result);
+    res.send(result);
+  });
+});
+// DONE
+app.post("/judgeDetails", (req, res) => {
+  let judge_id = req.body.judge_id;
+  const sql = `SELECT * FROM judges WHERE judge_id = ${judge_id}`;
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+    console.log("judge DETAILS");
+
+    console.log(result);
+    res.send(result);
+  });
+});
+
+
+
+
+
 
 
 app.post("/admin/changeStatusToHearing", (req, res) => {
@@ -548,8 +595,6 @@ app.post("/client/lawyerProfile", (req, res) => {
     res.send(result);
   });
 });
-
-
 
 app.post("/admin/verify", (req, res) => {
   let case_id = req.body.case_id;

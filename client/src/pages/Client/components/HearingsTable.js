@@ -17,7 +17,7 @@ import ButtonBase from "@material-ui/core/ButtonBase";
 import Grid from "@material-ui/core/Grid";
 import AboutLawyer from "../../AboutLawyer";
 import AboutCourt from "../../AboutCourt";
-
+import AboutJudge from "../../AboutJudge";
 export default function CustomizedTables() {
   const classes = useStyles();
   const C_id = useSelector((state) => state.Reducer.clientId);
@@ -25,9 +25,15 @@ export default function CustomizedTables() {
 
   const [lawyermodalopen, setlawyermodal] = useState(false);
   const [courtmodalopen, setcourtmodal] = useState(false);
+  const [judgemodalopen, setjudgemodal] = useState(false);
+
   const [lawyerid, setlawyerid] = useState("");
   const [courtid, setCourtid] = useState("");
+  const [judgeid, setjudgeid] = useState("");
 
+  const JudgemodalHandler = () => {
+    setjudgemodal((state) => !state);
+  };
   const CourtModalHandler = () => {
     setcourtmodal((state) => !state);
   };
@@ -66,6 +72,8 @@ export default function CustomizedTables() {
                 </StyledTableCell>
                 <StyledTableCell align="center">ABOUT LAWYER</StyledTableCell>
                 <StyledTableCell align="center">ABOUT COURT </StyledTableCell>
+                <StyledTableCell align="center">ABOUT JUDGE </StyledTableCell>
+
                 <StyledTableCell align="center"> MERIT STATUS</StyledTableCell>
                 <StyledTableCell align="center"> </StyledTableCell>
               </TableRow>
@@ -109,6 +117,19 @@ export default function CustomizedTables() {
                     </Button>
                   </StyledTableCell>
                   <StyledTableCell align="center">
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => {
+                        setjudgeid(row.judge_id);
+
+                        setjudgemodal(true);
+                      }}
+                    >
+                      Judge Details{" "}
+                    </Button>
+                  </StyledTableCell>
+                  <StyledTableCell align="center">
                     <div>
                       {row.merit_status ? <p>GIVEN</p> : <p>PENDING</p>}
                     </div>
@@ -137,7 +158,13 @@ export default function CustomizedTables() {
 
       <br></br>
       <br></br>
-
+      {judgemodalopen && (
+        <AboutJudge
+          Handler={JudgemodalHandler}
+          judgemodal={judgemodalopen}
+          judgeid={judgeid}
+        />
+      )}
       {courtmodalopen && (
         <AboutCourt
           Handler={CourtModalHandler}

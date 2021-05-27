@@ -41,7 +41,7 @@ export default function CustomizedTables() {
         .post("/client/CexpiredCasesAsDef", { client_id: C_id })
         .then((res) => {
           // console.log(res.data);
-          setrows(res.data);
+          setdefrows(res.data);
         });
     };
     f();
@@ -82,9 +82,17 @@ export default function CustomizedTables() {
                     </StyledTableCell>
 
                     <StyledTableCell align="center">
-                      <Button variant="outlined" color="secondary">
-                        CLICK HERE
-                      </Button>{" "}
+                      <Button
+                        variant={"outlined"}
+                        color={"secondary"}
+                        onClick={() => {
+                          setcaseid(row.case_id);
+
+                          setcasemodal(true);
+                        }}
+                      >
+                        CLICK HERE{" "}
+                      </Button>
                     </StyledTableCell>
                     <StyledTableCell align="center">EXPIRED </StyledTableCell>
                   </StyledTableRow>

@@ -9,21 +9,19 @@ import axios from "axios";
 import Button from "@material-ui/core/Button";
 import Avatar from "@material-ui/core/Avatar";
 export default function SimpleModal({ Handler, courtmodalopen, courtid }) {
-  //   const C_id = id;
-
-  //   const [userData, setuserData] = useState({});
-  //   console.log(C_id);
-  //   useEffect(() => {
-  //     console.log("FUNCTION");
-  //     const clientProfile = () => {
-  //       axios.post("/client/clientInfo", { client_id: C_id }).then((response) => {
-  //         //   console.log(response.data[0]);
-  //         setuserData(response.data[0]);
-  //       });
-  //     };
-  //     clientProfile();
-  //     return () => console.log("INFO UNMOUNTED");
-  //   }, [open]);
+  const [courtdata, setcourtdata] = useState(false);
+  console.log(courtdata);
+  useEffect(() => {
+    console.log("FUNCTION");
+    const courtdetails = () => {
+      axios.post("/courtDetails", { court_id: courtid }).then((response) => {
+        console.log(response.data[0]);
+        setcourtdata(Object.entries(response.data[0]));
+      });
+    };
+    courtdetails();
+    return () => console.log("INFO UNMOUNTED");
+  }, []);
   console.log(courtid);
   const classes = useStyles();
   const [modalStyle] = useState(getModalStyle);
@@ -55,9 +53,18 @@ export default function SimpleModal({ Handler, courtmodalopen, courtid }) {
                       <h1>
                         <p> COURT DETAILS </p>
                       </h1>
-                      <h1>
-                        <p> {courtid} </p>
-                      </h1>
+                      {courtdata &&
+                        courtdata.map((item, index) => (
+                          <div key={index}>
+                            {item[0] != "court_pwd" && (
+                              <h3 >
+                                <p>
+                                  {item[0]} : {item[1]}
+                                </p>
+                              </h3>
+                            )}
+                          </div>
+                        ))}
                     </div>
                   </Grid>
 

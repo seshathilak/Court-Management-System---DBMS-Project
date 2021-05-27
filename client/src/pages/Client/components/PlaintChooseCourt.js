@@ -1,6 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -8,76 +7,98 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
-import { useDispatch } from "react-redux";
+import { Box } from "@material-ui/core";
+import { Button } from "@material-ui/core";
+import FilePlaintModal from "./FilePlaintModal";
+import axios from "axios";
+import { useSelector, useDispatch } from "react-redux";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import FormHelperText from "@material-ui/core/FormHelperText";
+import FormControl from "@material-ui/core/FormControl";
+import Select from "@material-ui/core/Select";
 import { file_case } from "../../../redux/Action";
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-];
 
 export default function CustomizedTables() {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const [courtid, setcourtid] = useState("2");
-  const updateCourt = () => dispatch(file_case({ court_id: courtid }));
+  const [courtrows, setcourtRows] = useState([]);
+  const [type, settype] = useState("");
+  const updateCourt = (courtid) => dispatch(file_case({ court_id: courtid }));
+  const findCourtbasedonTYPE = (t) => {
+    settype(t);
+    axios
+      .post("/client/findCourt", { type: t })
+      .then((res) => setcourtRows(res.data));
+  };
   return (
-    <TableContainer component={Paper}>
-      <Table className={classes.table} aria-label="customized table">
-        <TableHead>
-          <TableRow>
-            <StyledTableCell align="center">Calories</StyledTableCell>
+    <div>
+      <FormControl className={classes.formControl}>
+        <InputLabel id="demo-simple-select-label">Court Type </InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={type}
+          onChange={(e) => findCourtbasedonTYPE(e.target.value)}
+        >
+          <MenuItem value={"Civil Court"}>Civil Court</MenuItem>
+          <MenuItem value={"Criminal Court"}>Criminal Court</MenuItem>
+          <MenuItem value={"High Court"}>High Court</MenuItem>
+        </Select>
+      </FormControl>
+      <br></br>
+      <br></br>
 
-            <StyledTableCell align="center">Calories</StyledTableCell>
-            <StyledTableCell align="center">Fat&nbsp;(g)</StyledTableCell>
-            <StyledTableCell align="center">Carbs&nbsp;(g)</StyledTableCell>
-            <StyledTableCell align="center">Protein&nbsp;(g)</StyledTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <StyledTableRow key={row.name}>
-              <StyledTableCell component="th" scope="row">
-                {row.name}
-              </StyledTableCell>
-              <StyledTableCell align="center">{row.calories}</StyledTableCell>
-              <StyledTableCell align="center">
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  onClick={() => {
-                    setcourtid(true);
-                  }}
-                >
-                  Find Lawyer
-                </Button>
-              </StyledTableCell>
-              <StyledTableCell align="center">{row.carbs}</StyledTableCell>
-              <StyledTableCell align="center">{row.protein}</StyledTableCell>
-            </StyledTableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <Button
-        fullWidth
-        color="secondary"
-        // className={classes.submit}
-        onClick={() => updateCourt()}
-      >
-        Update{" "}
-      </Button>
-    </TableContainer>
+      {courtrows.length != 0 && (
+        <TableContainer component={Paper}>
+          <Table className={classes.table} aria-label="customized table">
+            <TableHead>
+              <TableRow>
+                <StyledTableCell align="center">COURT ID</StyledTableCell>
+
+                <StyledTableCell align="center">COURT NAME</StyledTableCell>
+                <StyledTableCell align="center">ADDRESS </StyledTableCell>
+                <StyledTableCell align="center">TYPE </StyledTableCell>
+                <StyledTableCell align="center"> </StyledTableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {courtrows.map((row) => (
+                <StyledTableRow key={row.court_id}>
+                  <StyledTableCell align="center">
+                    {row.court_id}
+                  </StyledTableCell>
+                  <StyledTableCell align="center">
+                    {row.court_name}
+                  </StyledTableCell>
+                  <StyledTableCell align="center">
+                    {row.court_address}
+                  </StyledTableCell>
+                  <StyledTableCell align="center">{row.court_type}</StyledTableCell>
+
+                  <StyledTableCell align="center">
+                    <Button
+                      color="secondary"
+                      onClick={() => updateCourt(row.court_id)}
+                    >
+                      SELECT
+                    </Button>
+                  </StyledTableCell>
+                </StyledTableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+    </div>
   );
 }
 const useStyles = makeStyles({
   table: {
     minWidth: 700,
+  },
+  formControl: {
+    minWidth: 220,
   },
 });
 const StyledTableCell = withStyles((theme) => ({

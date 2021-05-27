@@ -12,16 +12,16 @@ export default function SimpleModal({ Handler, casemodal, caseid }) {
   console.log(caseid);
   const classes = useStyles();
   const [caseData, setcaseData] = useState(false);
-
+  console.log(caseData);
   useEffect(() => {
     console.log("FUNCTION");
-    const clientProfile = () => {
+    const abtcase = () => {
       axios.post("/caseDetails", { case_id: caseid }).then((response) => {
         console.log(response.data[0]);
         setcaseData(response.data[0]);
       });
     };
-    clientProfile();
+    abtcase();
     return () => console.log("INFO UNMOUNTED");
   }, []);
   return (
@@ -40,7 +40,7 @@ export default function SimpleModal({ Handler, casemodal, caseid }) {
                   <img
                     className={classes.img}
                     alt="complex"
-                    src="https://indialawyers.files.wordpress.com/2012/09/legal-profession.jpg"
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSzO5WKCL7gjXubvLgHa0hOw6QNlZr8efwiE_WzUv7k4TTkfaadkoTVPaT9XSVMWrIiAaY&usqp=CAU"
                   />
                 </ButtonBase>
               </Grid>
@@ -51,9 +51,96 @@ export default function SimpleModal({ Handler, casemodal, caseid }) {
                       <h1>
                         <p> CASE DETAILS </p>
                       </h1>
-                      <h1>
-                        <p> {caseid}</p>
-                      </h1>
+                      {caseData.case_id ? (
+                        <h3>
+                          <p>CASE ID : {caseData.case_id}</p>
+                        </h3>
+                      ) : (
+                        <h3>
+                          <p>CASE ID : Not Available </p>
+                        </h3>
+                      )}
+                      {caseData.case_title ? (
+                        <h3>
+                          <p>CASE TITLE : {caseData.case_title}</p>
+                        </h3>
+                      ) : (
+                        <h3>
+                          <p>CASE TITLE : Not Available </p>
+                        </h3>
+                      )}
+                      {caseData.case_desc ? (
+                        <h3>
+                          <p>CASE DESCRIPTION : {caseData.case_desc}</p>
+                        </h3>
+                      ) : (
+                        <h3>
+                          <p>CASE DESCRIPTION : Not Available </p>
+                        </h3>
+                      )}
+                      {caseData.client_id ? (
+                        <h3>
+                          <p>CLIENT ID : {caseData.client_id}</p>
+                        </h3>
+                      ) : (
+                        <h3>
+                          <p>CLIENT ID : Not Available </p>
+                        </h3>
+                      )}
+                      {caseData.lawyer_id ? (
+                        <h3>
+                          <p>CLIENT LAWYER ID : {caseData.lawyer_id}</p>
+                        </h3>
+                      ) : (
+                        <h3>
+                          <p>CLIENT LAWYER ID : Not Available </p>
+                        </h3>
+                      )}
+                      {caseData.court_id ? (
+                        <h3>
+                          <p>COURT ID : {caseData.court_id}</p>
+                        </h3>
+                      ) : (
+                        <h3>
+                          <p>COURT ID : Not Available </p>
+                        </h3>
+                      )}
+                      {caseData.judge_id ? (
+                        <h3>
+                          <p>JUDGE ID : {caseData.judge_id}</p>
+                        </h3>
+                      ) : (
+                        <h3>
+                          <p>JUDGE ID : Not Available </p>
+                        </h3>
+                      )}
+                      {caseData.def_id ? (
+                        <h3>
+                          <p>DEFENDER ID : {caseData.def_id}</p>
+                        </h3>
+                      ) : (
+                        <h3>
+                          <p>DEFENDER ID : Not Available </p>
+                        </h3>
+                      )}
+                      {caseData.def_lawyer_id ? (
+                        <h3>
+                          <p>DEFENDER LAWYER ID : {caseData.def_lawyer_id}</p>
+                        </h3>
+                      ) : (
+                        <h3>
+                          <p>DEFENDER LAWYER ID : Not Available </p>
+                        </h3>
+                      )}
+                      {caseData.case_status ? (
+                        <h3>
+                          <p>CASE STATUS : {caseData.case_status}</p>
+                        </h3>
+                      ) : (
+                        <h3>
+                          <p>CASE STATUS : Not Available </p>
+                        </h3>
+                      )}
                     </div>
                   </Grid>
 
@@ -75,20 +162,6 @@ export default function SimpleModal({ Handler, casemodal, caseid }) {
       </Modal>
     </div>
   );
-}
-function rand() {
-  return Math.round(Math.random() * 20) - 10;
-}
-
-function getModalStyle() {
-  const top = 50 + rand();
-  const left = 50 + rand();
-
-  return {
-    top: `${top}%`,
-    left: `${left}%`,
-    transform: `translate(-${top}%, -${left}%)`,
-  };
 }
 
 const useStyles = makeStyles((theme) => ({
