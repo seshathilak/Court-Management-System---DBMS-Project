@@ -188,7 +188,7 @@ app.post("/client/COngngCasesAsClient", (req, res) => {
     res.json(result);
   });
 });
-// DONE
+// DONE(KINDA)
 app.post("/client/COngngCasesAsDef", (req, res) => {
   let client_id = req.body.client_id;
   const sql1 = `SELECT * FROM cases WHERE def_id = ${client_id} AND case_status="ongoing"`;
@@ -199,10 +199,10 @@ app.post("/client/COngngCasesAsDef", (req, res) => {
   });
 });
 
-// DONE
+// DONE(KINDA)
 app.post("/client/CExpiredCasesAsClient", (req, res) => {
   let client_id = req.body.client_id;
-  const sql = `SELECT * FROM cases WHERE client_id = ${client_id} AND case_status="expired"`;
+  const sql = `SELECT * FROM expired_cases WHERE client_id = ${client_id} `;
   db.query(sql, (err, result) => {
     if (err) throw err;
     console.log(result);
@@ -212,7 +212,7 @@ app.post("/client/CExpiredCasesAsClient", (req, res) => {
 // DONE
 app.post("/client/CexpiredCasesAsDef", (req, res) => {
   let client_id = req.body.client_id;
-  const sql1 = `SELECT * FROM cases WHERE def_id = ${client_id} AND case_status="expired"`;
+  const sql1 = `SELECT * FROM expired_cases WHERE def_client_id = ${client_id} `;
   db.query(sql1, (err1, result1) => {
     if (err1) throw err1;
     res.json(result1);
@@ -247,7 +247,7 @@ app.post("/client/def_request_lawyer", (req, res) => {
 
 //DONE
 app.post("/client/def_pay_fees", (req, res) => {
-  let sql = `update cases set def_fees_paid=1 , def_fees_status = 1 ,case_status = 'ongoing' where case_id=${req.body.case_id} and def_id=${req.body.client_id}`;
+  let sql = `update cases set def_fees_paid=1  where case_id=${req.body.case_id} and def_id=${req.body.client_id}`;
   db.query(sql, (err, result) => {
     if (err) {
       throw err;
@@ -282,7 +282,7 @@ app.post("/client/findCourt", (req, res) => {
   });
 });
 
-//DONE 
+//DONE
 app.post("/caseDetails", (req, res) => {
   let case_id = req.body.case_id;
   const sql = `SELECT * FROM cases WHERE case_id = ${case_id}`;
@@ -321,6 +321,7 @@ app.post("/lawyerDetails", (req, res) => {
     res.send(result);
   });
 });
+
 // DONE
 app.post("/judgeDetails", (req, res) => {
   let judge_id = req.body.judge_id;
@@ -334,12 +335,7 @@ app.post("/judgeDetails", (req, res) => {
   });
 });
 
-
-
-
-
-
-
+//
 app.post("/admin/changeStatusToHearing", (req, res) => {
   let sql = `update cases set case_status='hearing' where verification=1 and fees_status=1 and client_id=${req.body.client_id} and case_id=${req.body.case_id} and lawyer_id not NULL`;
   db.query(sql, (err, result) => {
@@ -582,17 +578,6 @@ app.post("/lawyer/lawyerEditInfo", (req, res) => {
     console.log(result);
     res.send(result);
     //console.log('Updated up successfully');
-  });
-});
-
-//card display of lawyer details when a particular lawyer is clicked
-app.post("/client/lawyerProfile", (req, res) => {
-  let lawyer_id = req.body.lawyer_id;
-  const sql = `SELECT lawyer_name,lawyer_id,email,mobile_no,cases_won,lawyer_type FROM lawyers WHERE lawyer_id = ${laywer_id}`;
-  db.query(sql, (err, result) => {
-    if (err) throw err;
-    console.log(result);
-    res.send(result);
   });
 });
 
