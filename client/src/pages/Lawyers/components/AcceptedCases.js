@@ -18,6 +18,7 @@ export default function CustomizedTables() {
   //const classes = useStyles();
   const L_id = useSelector((state) => state.Reducer.lawyerId);
   const [rows, setrows] = useState([]);
+  const [drows, setdrows] = useState([]);
   const [caseid, setcaseid] = useState("");
   const [casemodal, setcasemodal] = useState(false);
 
@@ -46,9 +47,13 @@ export default function CustomizedTables() {
 
   useEffect(() => {
     //console.log(L_id);
-      axios.post("/lawyer/hearing", {lawyer_id: L_id}).then((response) => {
+      axios.post("/lawyer/AccCases", {lawyer_id: L_id}).then((response) => {
         console.log(response.data);
         setrows(response.data);
+      });
+      axios.post("/lawyer/DefAccCases", {lawyer_id: L_id}).then((response) => {
+        console.log(response.data);
+        setdrows(response.data);
       });
   },[]);
 
@@ -56,34 +61,19 @@ export default function CustomizedTables() {
     setcasemodal((state) => !state);
   };
 
-  const meritStatus = (status) => {
-    if(status == 1)
-      return(<p>Merited</p>)
-    else if(status == 0)
-      return(<p>Demerited</p>)
-    else
-      return(<p>Pending</p>)
-  }
-
   const classes = useStyles();
   return (
+      <div>
       <Box>
-        {casemodal && (
-    <AboutCase
-      Handler={() => casemodalHandler()}
-      caseid={caseid}
-      casemodal={casemodal}
-    />
-  )}
         <Paper className={classes.paper}>
           <Box align="center">
-            <h1>HEARING CASES</h1>
+            <h1>ACCEPTED CASES AS CLIENT SIDE LAWYER</h1>
           </Box>
         </Paper>
         {rows.length == 0 && (
           <Paper className={classes.paper}>
           <Box align="center">
-            <h2>No hearing cases</h2>
+            <h2>No accepted cases</h2>
           </Box>
         </Paper>
         )}
@@ -94,10 +84,9 @@ export default function CustomizedTables() {
           <TableRow>
             <StyledTableCell align="center">CASE ID</StyledTableCell>
             <StyledTableCell align="center">CASE TITLE</StyledTableCell>
-            <StyledTableCell align="center">COURT ID</StyledTableCell>
             <StyledTableCell align="center">CLIENT ID</StyledTableCell>
+            <StyledTableCell align="center">COURT ID</StyledTableCell>
             <StyledTableCell align="center">JUDGE ID</StyledTableCell>
-            <StyledTableCell align="center">MERIT STATUS</StyledTableCell>
             <StyledTableCell align="center"></StyledTableCell>
           </TableRow>
         </TableHead>
@@ -109,12 +98,70 @@ export default function CustomizedTables() {
               </StyledTableCell>  */}
               <StyledTableCell align="center">{row.case_id}</StyledTableCell>
               <StyledTableCell align="center">{row.case_title}</StyledTableCell>
-              <StyledTableCell align="center">{row.court_id}</StyledTableCell>
               <StyledTableCell align="center">{row.client_id}</StyledTableCell>
+              <StyledTableCell align="center">{row.court_id}</StyledTableCell>
               <StyledTableCell align="center">{row.judge_id}</StyledTableCell>
               <StyledTableCell align="center">
-                {meritStatus(row.merit_status)}
+              <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => {
+                      casemodalHandler();
+                      setcaseid(row.case_id);
+                  }}
+              >
+                Case details
+              </Button>
               </StyledTableCell>
+            </StyledTableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>)}
+    {casemodal && (
+    <AboutCase
+      Handler={() => casemodalHandler()}
+      caseid={caseid}
+      casemodal={casemodal}
+    />
+  )}
+              <br></br>
+    <Paper className={classes.paper}>
+          <Box align="center">
+            <h1>ACCEPTED CASES AS DEFENDANT CLIENT LAWYER</h1>
+          </Box>
+        </Paper>
+        {drows.length == 0 && (
+          <Paper className={classes.paper}>
+          <Box align="center">
+            <h2>No accepted cases</h2>
+          </Box>
+        </Paper>
+        )}
+    {drows.length != 0 && (
+    <TableContainer component={Paper}>
+      <Table className={classes.table} aria-label="customized table">
+        <TableHead>
+        <TableRow>
+            <StyledTableCell align="center">CASE ID</StyledTableCell>
+            <StyledTableCell align="center">CASE TITLE</StyledTableCell>
+            <StyledTableCell align="center">CLIENT ID</StyledTableCell>
+            <StyledTableCell align="center">COURT ID</StyledTableCell>
+            <StyledTableCell align="center">JUDGE ID</StyledTableCell>
+            <StyledTableCell align="center"></StyledTableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+        {drows.map((row) => (
+            <StyledTableRow key={row.case_id}>
+             {/* <StyledTableCell component="th" scope="row">
+                {row.case_id}
+              </StyledTableCell>  */}
+              <StyledTableCell align="center">{row.case_id}</StyledTableCell>
+              <StyledTableCell align="center">{row.case_title}</StyledTableCell>
+              <StyledTableCell align="center">{row.def_id}</StyledTableCell>
+              <StyledTableCell align="center">{row.court_id}</StyledTableCell>
+              <StyledTableCell align="center">{row.judge_id}</StyledTableCell>
               <StyledTableCell align="center">
               <Button
                   variant="outlined"
@@ -122,7 +169,7 @@ export default function CustomizedTables() {
                   onClick={() => {
                     casemodalHandler();
                     setcaseid(row.case_id);
-                }}
+                  }}
               >
                 Case details
               </Button>
@@ -133,5 +180,7 @@ export default function CustomizedTables() {
       </Table>
     </TableContainer>)}
     </Box>
+    </div>
+    
   )
 }

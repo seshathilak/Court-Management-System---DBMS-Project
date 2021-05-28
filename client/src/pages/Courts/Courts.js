@@ -7,7 +7,12 @@ import Box from "@material-ui/core/Box";
 import PropTypes from "prop-types";
 import AppBar from "../MyAppbar";
 import PlaintsTable from "./components/PlaintsTable";
+import HearingsTable from "./components/HearingTable";
+import OngoingTable from "./components/ongoing";
 import JudgementAssignment from "./components/JudgeAssignment";
+import ExpiredTable from "./components/expired";
+import Info from "./components/Info";
+
 export default function ClientsPage() {
   const classes = useStyles();
   const [value, setValue] = useState(0);
@@ -31,10 +36,13 @@ export default function ClientsPage() {
           <Tab label="About Court" {...a11yProps(0)} />
           <Tab label="Plaints" {...a11yProps(1)} />
           <Tab label="JudgeAssignment" {...a11yProps(2)} />
+          <Tab label="Hearing" {...a11yProps(3)} />
+          <Tab label="Ongoing" {...a11yProps(4)} />
+          <Tab label="Expired" {...a11yProps(5)} />
         </Tabs>
 
         <TabPanel className={classes.table} value={value} index={0}>
-          About Court
+          <Info/>
         </TabPanel>
         <TabPanel className={classes.table} value={value} index={1}>
           <PlaintsTable />
@@ -43,6 +51,16 @@ export default function ClientsPage() {
           JudgeAssignment
           {/* <JudgementAssignment /> */}
         </TabPanel>
+        <TabPanel className={classes.table} value={value} index={3}>
+          <HearingsTable />
+        </TabPanel>
+        <TabPanel className={classes.table} value={value} index={4}>
+          <OngoingTable />
+        </TabPanel>
+        <TabPanel className={classes.table} value={value} index={5}>
+          <ExpiredTable />
+        </TabPanel>
+
       </div>
     </Box>
   );

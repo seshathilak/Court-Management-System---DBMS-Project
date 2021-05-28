@@ -335,7 +335,70 @@ app.post("/judgeDetails", (req, res) => {
   });
 });
 
-//
+// DONE
+app.post("/judge/login", (req, res) => {
+  const judge_id = req.body.judge_id;
+  const pwd = req.body.pwd;
+
+  const sql = "SELECT * FROM judges WHERE judge_id = ? AND judge_pwd = ?";
+  db.query(sql, [judge_id, pwd], (err, result) => {
+    if (err) res.send({ err: err });
+    console.log(result);
+    if (result.length > 0) {
+      console.log(result);
+      res.send(true);
+    } else res.send(false);
+  });
+});
+// DONE
+app.post("/judges/info", (req, res) => {
+  let judge_id = req.body.judge_id;
+  const sql = `SELECT * FROM judges WHERE judge_id = ${judge_id}`;
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+    console.log(result);
+    res.send(result);
+  });
+});
+// DONE
+app.post("/judge/hearing", (req, res) => {
+  let sql = `select * from cases where case_status='hearing' and judge_id=${req.body.judge_id}`;
+  db.query(sql, (err, result) => {
+    if (err) {
+      throw err;
+    }
+
+    console.log(result);
+    res.json(result);
+  });
+});
+// DONE
+
+app.post("/judge/ongoing", (req, res) => {
+  let sql = `select * from cases where case_status='ongoing' and judge_id=${req.body.judge_id}`;
+  db.query(sql, (err, result) => {
+    if (err) {
+      throw err;
+    }
+
+    console.log(result);
+    res.json(result);
+  });
+});
+// DONE
+
+app.post("/judge/expired", (req, res) => {
+  let sql = `select * from expired_cases where judge_id=${req.body.judge_id}`;
+  db.query(sql, (err, result) => {
+    if (err) {
+      throw err;
+    }
+
+    console.log(result);
+    res.json(result);
+  });
+});
+//HEMA CHANGED
 app.post("/admin/changeStatusToHearing", (req, res) => {
   let sql = `update cases set case_status='hearing' where verification=1 and fees_status=1 and client_id=${req.body.client_id} and case_id=${req.body.case_id} and lawyer_id not NULL`;
   db.query(sql, (err, result) => {
@@ -354,6 +417,7 @@ app.post("/admin/changeStatusToHearing", (req, res) => {
   });
 });
 
+//HEMA CHANGED
 app.post("/admin/hearing", (req, res) => {
   let sql = `select * from cases where case_status='hearing' and court_id=${req.body.court_id}`;
   db.query(sql, (err, result) => {
@@ -361,8 +425,8 @@ app.post("/admin/hearing", (req, res) => {
       throw err;
     }
     if (result.length <= 0) {
-      console.log("No hearing cases");
-      res.send("No hearing cases");
+      console.log(result);
+      res.send(result);
     } else {
       console.log(result[0]);
       res.json(result);
@@ -376,63 +440,17 @@ app.post("/lawyer/hearing", (req, res) => {
     if (err) {
       throw err;
     }
-    if (result.length <= 0) {
-      console.log("No hearing cases");
-      res.send("No hearing cases");
-    } else {
-      console.log(result[0]);
-      res.json(result);
-    }
+    // if (result.length <= 0) {
+    //   console.log("No hearing cases");
+    //   res.send("No hearing cases");
+    // } else {
+    console.log(result[0]);
+    res.json(result);
+    //}
   });
 });
 
-app.post("/judge/hearing", (req, res) => {
-  let sql = `select * from cases where case_status='hearing' and judge_id=${req.body.judge_id}`;
-  db.query(sql, (err, result) => {
-    if (err) {
-      throw err;
-    }
-    if (result.length <= 0) {
-      console.log("No hearing cases");
-      res.send("No hearing cases");
-    } else {
-      console.log(result[0]);
-      res.json(result);
-    }
-  });
-});
-
-app.post("/judge/ongoing", (req, res) => {
-  let sql = `select * from cases where case_status='ongoing' and judge_id=${req.body.judge_id}`;
-  db.query(sql, (err, result) => {
-    if (err) {
-      throw err;
-    }
-    if (result.length <= 0) {
-      console.log("No ongoing cases for you");
-      res.send("No ongoing cases for you");
-    } else {
-      console.log(result[0]);
-      res.json(result);
-    }
-  });
-});
-app.post("/judge/expired", (req, res) => {
-  let sql = `select * from cases where case_status='expired' and judge_id=${req.body.judge_id}`;
-  db.query(sql, (err, result) => {
-    if (err) {
-      throw err;
-    }
-    if (result.length <= 0) {
-      console.log("No expired cases for you");
-      res.send("No ongoing cases for you");
-    } else {
-      console.log(result[0]);
-      res.json(result);
-    }
-  });
-});
-
+//HEMA CHANGED
 app.post("/court/ongoing", (req, res) => {
   let sql = `select * from cases where case_status='ongoing' and court_id=${req.body.court_id}`;
   db.query(sql, (err, result) => {
@@ -441,7 +459,7 @@ app.post("/court/ongoing", (req, res) => {
     }
     if (result.length <= 0) {
       console.log("No ongoing cases for you");
-      res.send("No ongoing cases for you");
+      res.send(result);
     } else {
       console.log(result[0]);
       res.json(result);
@@ -449,15 +467,16 @@ app.post("/court/ongoing", (req, res) => {
   });
 });
 
+//HEMA CHANGED
 app.post("/court/expired", (req, res) => {
-  let sql = `select * from cases where case_status='expired' and court_id=${req.body.court_id}`;
+  let sql = `select * from cases natural join expired_cases where expired_cases.court_id=${req.body.court_id}`;
   db.query(sql, (err, result) => {
     if (err) {
       throw err;
     }
     if (result.length <= 0) {
       console.log("No expired cases for you");
-      res.send("No ongoing cases for you");
+      res.send(result);
     } else {
       console.log(result[0]);
       res.json(result);
@@ -473,8 +492,18 @@ app.post("/lawyer/login", (req, res) => {
   db.query(sql, [l_id, pwd], (err, result) => {
     if (err) res.send({ err: err });
     if (result.length > 0) {
-      res.send(result);
-    } else res.send({ message: "Incorrect username/password" });
+      res.send(true);
+    } else res.send(false);
+  });
+});
+
+app.post("/lawyer/Info", (req, res) => {
+  let lawyer_id = req.body.lawyer_id;
+  const sql = `SELECT * FROM lawyers WHERE lawyer_id = ${lawyer_id}`;
+  db.query(sql, (err, result) => {
+    if (err) throw err;
+    console.log(result);
+    res.send(result);
   });
 });
 
@@ -485,62 +514,93 @@ app.post("/court/login", (req, res) => {
   const sql = "SELECT * FROM courts WHERE court_id = ? AND court_pwd = ?";
   db.query(sql, [c_id, pwd], (err, result) => {
     if (err) res.send({ err: err });
+    //res.send(result);
     if (result.length > 0) {
-      res.send(result);
-    } else res.send({ message: "Incorrect username/password" });
+      res.send(true);
+    } else res.send(false);
   });
 });
 
+//HEMA CHANGED
 //changes the merit status and adds the def client in clients table if not present already
 app.post("/admin/merit", (req, res) => {
   let case_id = req.body.case_id;
   let court_id = req.body.court_id;
   let def_client_email = req.body.def_client_email;
-  const sql = `UPDATE cases SET merit_status='1' WHERE case_id = ${case_id} AND court_id = ${court_id}`;
+  const sql = `UPDATE cases SET merit_status=${req.body.merit_status} WHERE case_id = ${case_id} AND court_id = ${court_id}`;
   db.query(sql, (err, result) => {
     if (err) throw err;
     console.log(result);
   });
-  const sql1 = `SELECT * FROM clients WHERE email='${def_client_email}'`;
-  db.query(sql1, (err1, result1) => {
-    if (err1) throw err1;
-    if (result1.length <= 0) {
-      var generator = require("generate-password");
-      var password = generator.generate({
-        length: 7,
-        numbers: true,
-      });
-      const sql2 = "INSERT INTO clients (email,password) VALUES(?,?)";
-      db.query(sql2, [def_client_email, password], (err2, result2) => {
-        if (err2) throw err2;
-        console.log(result2);
-        const sql3 = `SELECT * FROM clients WHERE email='${def_client_email}'`;
-        db.query(sql3, (err3, result3) => {
-          if (err3) throw err3;
-          res.json(result3);
-          //res.send("A mail shud be sent to the client with login details and shud be asked to pay the fee");
+  if (req.body.merit_status) {
+    const sql1 = `SELECT * FROM clients WHERE email='${def_client_email}'`;
+    db.query(sql1, (err1, result1) => {
+      if (err1) throw err1;
+      if (result1.length <= 0) {
+        var generator = require("generate-password");
+        var password = generator.generate({
+          length: 7,
+          numbers: true,
         });
+        const sql2 = "INSERT INTO clients (email,password) VALUES(?,?)";
+        db.query(sql2, [def_client_email, password], (err2, result2) => {
+          if (err2) throw err2;
+          console.log(result2);
+          const sql3 = `SELECT * FROM clients WHERE email='${def_client_email}'`;
+          db.query(sql3, (err3, result3) => {
+            if (err3) throw err3;
+            //res.json(result3);
+            let sql4 = `update cases set def_id=${result3[0].client_id} where case_id=${case_id} and court_id=${court_id}`;
+            db.query(sql4, (err4, result4) => {
+              if (err4) {
+                throw err4;
+              }
+              res.json(result4);
+            });
+            //res.send("A mail shud be sent to the client with login details and shud be asked to pay the fee");
+          });
+        });
+      } else {
+        console.log(result1);
+        //res.json(result1);
+        let sql4 = `update cases set def_id=${result1[0].client_id} where case_id=${case_id} and court_id=${court_id}`;
+        db.query(sql4, (err4, result4) => {
+          if (err4) {
+            throw err4;
+          }
+          res.json(result4);
+        });
+        //res.send("A mail must be sent to the defendant to pay fee.");
+      }
+    });
+  } else {
+    case_details = {
+      case_id: req.body.case_id,
+      court_id: req.body.court_id,
+      client_id: req.body.client_id,
+      case_title: req.body.case_title,
+      case_desc: req.body.case_desc,
+      case_type: req.body.case_type,
+      removal_reason: "demerited",
+    };
+    sql = `insert into removed_cases set ?`;
+    db.query(sql, case_details, (err, result) => {
+      if (err) throw err;
+      console.log(result);
+      sql = `delete from cases where case_id=${req.body.case_id} and court_id=${req.body.court_id}`;
+      db.query(sql, case_details, (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        res.send(result);
       });
-    } else {
-      console.log(result1);
-      res.json(result1);
-      //res.send("A mail must be sent to the defendant to pay fee.");
-    }
-  });
-});
-
-app.post("/lawyer/LOngngCases", (req, res) => {
-  let lawyer_id = req.body.lawyer_id;
-  const sql = `SELECT case_id,case_title FROM cases WHERE lawyer_id = ${lawyer_id} AND case_status="ongoing"`;
-  db.query(sql, (err, result) => {
-    if (err) throw err;
-    res.json(result);
-  });
+      // res.send(result);
+    });
+  }
 });
 
 app.post("/lawyer/LOngngCasesAsDefLawyer", (req, res) => {
   let lawyer_id = req.body.lawyer_id;
-  const sql1 = `SELECT case_id,case_title FROM cases WHERE def_lawyer_id = ${lawyer_id} AND case_status="ongoing"`;
+  const sql1 = `SELECT * FROM cases WHERE def_lawyer_id = ${lawyer_id} AND case_status="ongoing"`;
   db.query(sql1, (err1, result1) => {
     if (err1) throw err1;
     res.json(result1);
@@ -549,30 +609,52 @@ app.post("/lawyer/LOngngCasesAsDefLawyer", (req, res) => {
 
 app.post("/lawyer/LExpiredCases", (req, res) => {
   let lawyer_id = req.body.lawyer_id;
-  const sql = `SELECT case_id,case_title FROM cases WHERE client_id = ${lawyer_id} AND case_status="expired"`;
+  const sql = `SELECT * FROM expired_cases WHERE lawyer_id = ${lawyer_id}`;
   db.query(sql, (err, result) => {
     if (err) throw err;
     res.json(result);
   });
 });
 
-app.post("/LExpiredCasesAsDefLawyer", (req, res) => {
+app.post("/lawyer/LExpiredCasesAsDefLawyer", (req, res) => {
   let lawyer_id = req.body.lawyer_id;
-  const sql1 = `SELECT case_id,case_title FROM cases WHERE def_id = ${lawyer_id} AND case_status="expired"`;
+  const sql1 = `SELECT * FROM expired_cases WHERE def_lawyer_id = ${lawyer_id}`;
   db.query(sql1, (err1, result1) => {
     if (err1) throw err1;
     res.json(result1);
   });
 });
 
+app.post("/lawyer/fetch_plaint_request_lawyer", (req, res) => {
+  let sql = `select * from cases where lawyer_req_send=${req.body.lawyer_id} and lawyer_req_accept=0 and lawyer_id is NULL`;
+  db.query(sql, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    console.log(result);
+    res.json(result);
+  });
+});
+
+app.post("/lawyer/fetch_def_plaint_request_lawyer", (req, res) => {
+  let sql = `select * from cases where def_lawyer_req_send=${req.body.lawyer_id} and def_lawyer_req_accept=0 and def_lawyer_id is NULL`;
+  db.query(sql, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    console.log(result);
+    res.json(result);
+  });
+});
+
 app.post("/lawyer/lawyerEditInfo", (req, res) => {
   let lawyer_id = req.body.lawyer_id;
-  const name = req.body.name;
-  const mno = req.body.mno;
+  const name = req.body.lawyer_name;
+  const mno = req.body.mobile_no;
   const email = req.body.email;
-  const pwd = req.body.pwd;
+  const pwd = req.body.password;
 
-  const sql = `UPDATE lawyers SET lawyer_name='${name}', mobile_no='${mno}', email='${email}', password='${pwd}' WHERE client_id=${lawyer_id}`;
+  const sql = `UPDATE lawyers SET lawyer_name='${name}', mobile_no='${mno}', email='${email}', password='${pwd}' WHERE lawyer_id=${lawyer_id}`;
   db.query(sql, (err, result) => {
     if (err) throw err;
     console.log(result);
@@ -581,9 +663,10 @@ app.post("/lawyer/lawyerEditInfo", (req, res) => {
   });
 });
 
+//HEMA CHANGED
 app.post("/admin/verify", (req, res) => {
   let case_id = req.body.case_id;
-  const sql = `UPDATE cases SET verification='1' WHERE case_id = ${case_id}`;
+  const sql = `UPDATE cases SET verification=1 WHERE case_id = ${case_id}`;
   db.query(sql, (err, result) => {
     if (err) throw err;
     console.log(result);
@@ -593,14 +676,34 @@ app.post("/admin/verify", (req, res) => {
   });
 });
 
-//c
+//HEMA CHANGED
 app.post("/admin/notVerify", (req, res) => {
   let case_id = req.body.case_id;
-  const sql = `UPDATE cases SET case_status='not verified' WHERE case_id = ${case_id}`;
+  let sql = `UPDATE cases SET case_status='not verified',verification=0 WHERE case_id = ${case_id}`;
   db.query(sql, (err, result) => {
     if (err) throw err;
     console.log(result);
-    res.send("Case is not verified. Case is dropped.");
+    case_details = {
+      case_id: req.body.case_id,
+      court_id: req.body.court_id,
+      client_id: req.body.client_id,
+      case_title: req.body.case_title,
+      case_desc: req.body.case_desc,
+      case_type: req.body.case_type,
+      removal_reason: "not verified",
+    };
+    sql = `insert into removed_cases set ?`;
+    db.query(sql, case_details, (err, result) => {
+      if (err) throw err;
+      console.log(result);
+      sql = `delete from cases where case_id=${req.body.case_id} and court_id=${req.body.court_id}`;
+      db.query(sql, case_details, (err, result) => {
+        if (err) throw err;
+        console.log(result);
+        res.send(result);
+      });
+      // res.send(result);
+    });
   });
 });
 
@@ -614,7 +717,7 @@ app.post("/admin/demerit", (req, res) => {
   });
 });
 
-//c
+//HEMA CHANGED
 app.post("/admin/addToExpired", (req, res) => {
   let case_id = req.body.case_id;
   const sql = `SELECT case_id,client_id,lawyer_id,def_id,def_lawyer_id,judge_id,court_id FROM cases WHERE case_id = ${case_id}`;
@@ -643,14 +746,25 @@ app.post("/admin/addToExpired", (req, res) => {
   });
 });
 
+//HEMA CHANGED
 //adds verdict and increment the cases won by a lawyer
 app.post("/admin/updateJudgement", (req, res) => {
   const case_id = req.body.case_id;
   const judgement = req.body.judgement;
-  const wonLID = req.body.wonLID;
-
-  const sql = "INSERT INTO expired_cases (judgement,winner) VALUES (?,?)";
-  db.query(sql, [judgement, wonLID], (err, result) => {
+  const wonLID = req.body.winner;
+  const case_details = {
+    case_id: req.body.case_id,
+    judgement: judgement,
+    winner: wonLID,
+    client_id: req.body.client_id,
+    lawyer_id: req.body.lawyer_id,
+    def_client_id: req.body.def_client_id,
+    def_lawyer_id: req.body.def_lawyer_id,
+    court_id: req.body.court_id,
+    judge_id: req.body.judge_id,
+  };
+  const sql = "INSERT INTO expired_cases SET ?";
+  db.query(sql, case_details, (err, result) => {
     if (err) throw err;
     console.log(result);
     //res.send();
@@ -671,6 +785,7 @@ app.post("/admin/updateJudgement", (req, res) => {
   });
 });
 
+//HEMA CHANGED
 app.post("/admin/changeStatusToOngoing", (req, res) => {
   let sql = `update cases set case_status='ongoing' where case_id=${req.body_case_id} where def_fees_status=1`;
   db.query(sql, (err, result) => {
@@ -682,10 +797,9 @@ app.post("/admin/changeStatusToOngoing", (req, res) => {
   });
 });
 
-//in the front end, once this is called, a form must be open to enter the hearing details like the judge id and call
-//  '/admin/changeStatusToHearing
+///HEMA CHANGED
 app.post("/admin/update_client_fees_status", (req, res) => {
-  let sql = `update cases set fees_status=1 where case_id=${req.body.case_id} and court_id=${req.body.court_id} and client_id=${req.body.client_id} and fees_paid=1`;
+  let sql = `update cases set fee_status=1 where case_id=${req.body.case_id} and court_id=${req.body.court_id} and client_id=${req.body.client_id} and fees_paid=1`;
   db.query(sql, (err, result) => {
     if (err) {
       throw err;
@@ -696,12 +810,21 @@ app.post("/admin/update_client_fees_status", (req, res) => {
 });
 //after calling this in the front end make a call to the following url too:
 // /admin/changeStatusToOngoing
+//HEMA CHANGED
 app.post("/admin/update_def_fees_status", (req, res) => {
   let sql = `update cases set def_fees_status=1 where case_id=${req.body.case_id} and court_id=${req.body.court_id} and def_id=${req.body.def_id} and def_fees_paid=1`;
   db.query(sql, (err, result) => {
     if (err) {
       throw err;
     }
+    sql = `update cases set case_status='ongoing' where case_id=${req.body.case_id} and def_fees_status=1`;
+    db.query(sql, (err, result) => {
+      if (err) {
+        throw err;
+      }
+      console.log(result);
+      //res.json(result);
+    });
     console.log(result);
     res.json(result);
   });
@@ -751,7 +874,7 @@ app.post("/lawyer/reject_plaint_request", (req, res) => {
 });
 
 app.post("/lawyer/accept_def_request", (req, res) => {
-  let sql = `update cases set def_lawyer_id=${req.body.lawyer_id},lawyer_req_accept=1 where case_id=${req.body.case_id} and def_id= ${req.body.def_id}`;
+  let sql = `update cases set def_lawyer_id=${req.body.lawyer_id},def_lawyer_req_accept=1 where case_id=${req.body.case_id} and def_id= ${req.body.def_id}`;
   db.query(sql, (err, result) => {
     if (err) {
       throw err;
@@ -762,13 +885,68 @@ app.post("/lawyer/accept_def_request", (req, res) => {
 });
 
 app.post("/lawyer/reject_def_request", (req, res) => {
-  let sql = `update cases set def_lawyer_req_accept=0,lawyer_req_send=NULL where case_id=${req.body.case_id} and def_id=${req.body.def_id}`;
+  let sql = `update cases set def_lawyer_req_accept=0,def_lawyer_req_send=NULL where case_id=${req.body.case_id} and def_id=${req.body.def_id}`;
   db.query(sql, (err, result) => {
     if (err) {
       throw err;
     }
     console.log(result);
     res.json(result);
+  });
+});
+
+app.post("/lawyer/AccCases", (req, res) => {
+  let sql = `select * from cases where lawyer_id=${req.body.lawyer_id} and not case_status='ongoing' and not case_status='expired'`;
+  db.query(sql, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    console.log(result);
+    res.json(result);
+  });
+});
+
+app.post("/lawyer/DefAccCases", (req, res) => {
+  let sql = `select * from cases where def_lawyer_id=${req.body.lawyer_id} and not case_status='ongoing' and not case_status='expired'`;
+  db.query(sql, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    console.log(result);
+    res.json(result);
+  });
+});
+
+app.post("/court/court_info", (req, res) => {
+  let sql = `select * from courts where court_id=${req.body.court_id}`;
+  db.query(sql, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    console.log(result);
+    res.json(result);
+  });
+});
+
+app.post("/court/edit_court_info", (req, res) => {
+  let sql = `update courts set court_name='${req.body.court_name}',court_type='${req.body.court_type}',court_pwd='${req.body.court_pwd}',court_address='${req.body.court_address}' where court_id=${req.body.court_id}`;
+  db.query(sql, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    console.log(result);
+    res.send(result);
+  });
+});
+
+app.post("/admin/cases", (req, res) => {
+  let sql = `select * from cases where judge_id is NULL and court_id=${req.body.court_id}`;
+  db.query(sql, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    console.log(result);
+    res.send(result);
   });
 });
 

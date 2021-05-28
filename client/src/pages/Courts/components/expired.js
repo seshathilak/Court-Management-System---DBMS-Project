@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import TextField from "@material-ui/core/TextField";
+import Typography from "@material-ui/core/Typography";
 import { withStyles, makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -11,28 +13,20 @@ import { Box } from "@material-ui/core";
 import { Button } from "@material-ui/core";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormHelperText from "@material-ui/core/FormHelperText";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
-import {useRef} from 'react';
-import { PassThrough } from "stream";
 import AboutLawyer from "../../AboutLawyer";
 import AboutCourt from "../../AboutCourt";
 import AboutJudge from "../../AboutJudge";
 import AboutClient from "../../AboutClient";
 import AboutCase from "../../AboutCase";
 
+
 //var changed=true;
-export default function CustomizedTables({ value }) {
+export default function CustomizedTables({ Handler, open }) {
     console.log("Open Hearing table for Admin");
     
     const A_id = useSelector((state) => state.Reducer.adminId);
     const [rows, setrows] = useState([]);
-    const [changed,setchanged] = useState(false);
-    const [feesVerified,setFeesVerified] = useState(false);
-    const [verified,setVerified] = useState(false);
+    const [changed,setChanged] = useState(false);
     const [lawyermodalopen, setlawyermodal] = useState(false);
     const [courtmodalopen, setcourtmodal] = useState(false);
     const [judgemodalopen, setjudgemodal] = useState(false);
@@ -61,7 +55,7 @@ export default function CustomizedTables({ value }) {
       setcasemodal((state) => !state);
     };
   
-    const useStyles = makeStyles({
+    const useStyles = makeStyles((theme)=>({ 
         table: {
           minWidth: 700,
         },
@@ -76,7 +70,8 @@ export default function CustomizedTables({ value }) {
             padding: 15,
         },
         selectEmpty: {},
-      });
+        
+      }));
       const StyledTableCell = withStyles((theme) => ({
         head: {
           backgroundColor: theme.palette.common.black,
@@ -94,92 +89,25 @@ export default function CustomizedTables({ value }) {
           },
         },
       }))(TableRow);
-        const verifyFees =(row)=>{
-          axios.post("/admin/update_client_fees_status",{
-            case_id:row.case_id,
-            court_id:row.court_id,
-            client_id:row.client_id,
-          }).then((res) => {
-            console.log(res.data);
-            setFeesVerified(true);
-            console.log(changed);
-            
-            
-        });
-        }
-        const verify =(row,status)=>{
-          axios.post("/admin/verify",{
-            case_id:row.case_id,
-            court_id:row.court_id,
-            client_id:row.client_id,
-            status:status
-          }).then((res) => {
-            console.log(res.data);
-            setVerified(true);
-            console.log(changed);
-            
-            
-        });
-        }
-        const notverify =(row,status)=>{
-          axios.post("/admin/notVerify",{
-            case_id:row.case_id,
-            court_id:row.court_id,
-            client_id:row.client_id,
-            case_title:row.case_title,
-            case_desc:row.case_desc,
-            case_type:row.case_type,
-            status:status
-          }).then((res) => {
-            console.log(res.data);
-            setVerified(true);
-            console.log(changed);
-            
-            
-        });
-        }
-
     
       
       
       useEffect(() => {
         console.log("FUNCTION");
-        //const plaintList = () => {
-           // if(changed){
           axios
-            .post("/admin/cases", { court_id: A_id })
+            .post("/court/expired", { court_id: A_id })
             .then((response) => {
               console.log(response.data);
               setrows(response.data);
             });
-            //changed=false;
-       // };
-           // }
-      },[changed,feesVerified,verified]);
+      },[changed]);
     
-    
-      const renderVerification_Status=(verification,row)=>{
-            if(verification==1){
-                return (
-                    <p>Verified</p>
-                )
-            }
-            else if(verification==0){
-                return(
-                    <p>Not Verified</p>
-                )
-            }
-           
-            
-
-      }
-
       const classes = useStyles();
       return(
         <Box>
         <Paper className={classes.paper}>
           <Box align="center">
-            <h1>CASES</h1>
+            <h1>EXPIRED CASES</h1>
           </Box>
         </Paper>
         <br></br>
@@ -189,29 +117,47 @@ export default function CustomizedTables({ value }) {
               <Table className={classes.table} aria-label="customized table">
                 <TableHead>
                   <TableRow>
-                    <StyledTableCell align="center">CASE ID</StyledTableCell>
-                    <StyledTableCell align="center">CLIENT DETAILS</StyledTableCell>
                     <StyledTableCell align="center">CASE DETAILS</StyledTableCell>
+                    <StyledTableCell align="center">CLIENT DETAILS</StyledTableCell>
                     <StyledTableCell align="center">
-                      VERIFICATION STATUS{" "}
+                      DEFENDANT DETAILS
                     </StyledTableCell>
                     <StyledTableCell align="center">
-                      FEES STATUS
+                      CLIENT LAWYER
                     </StyledTableCell>
                     <StyledTableCell align="center">
-                      CASE STATUS
+                      DEFENDANT LAWYER
                     </StyledTableCell>
+                    <StyledTableCell align="center">JUDGE DETAILS</StyledTableCell>
+                    <StyledTableCell align="center">
+                      JUDGEMENT
+                    </StyledTableCell>
+                    <StyledTableCell align="center">
+                      LAWYER WON DETAILS
+                    </StyledTableCell>
+                    
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {rows.map((row) => (
-                    <StyledTableRow key={row.case_id}>
+                    <StyledTableRow key={row.case_id,row.client_id}>
                       <StyledTableCell
                         component="th"
                         scope="row"
                         align="center"
                       >
-                        {row.case_id}
+                         <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => {
+                        setcaseid(row.case_id);
+
+                        setcasemodal(true);
+                      }}
+                    >
+                      Case Details{" "}
+                    </Button>
+                        
                       </StyledTableCell>
                       <StyledTableCell align="center">
                       <Button
@@ -231,58 +177,81 @@ export default function CustomizedTables({ value }) {
                       variant="outlined"
                       color="secondary"
                       onClick={() => {
-                        setcaseid(row.case_id);
+                        setclientid(row.def_id);
 
-                        setcasemodal(true);
+                        setclientmodal(true);
                       }}
                     >
-                      Case Details{" "}
+                       Defendant Details{" "}
                     </Button>
                       </StyledTableCell>
                       <StyledTableCell align="center">
-                          {row.verification !=null ? (
-                          PassThrough
-                        ) : (
-                            <div>
-                            <Button variant="outlined" color="primary" onClick={()=>{
-                                verify(row,1);
-                            }}>
-                            VERIFY
-                        </Button>
-                    <Button variant="outlined" color="secondary" onClick={()=>{
-                        notverify(row,0);
-                    }}>
-                          DENY
-                        </Button>
-                        </div>
-                        )}
-                        {renderVerification_Status(row.verification,row)} 
+                      <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => {
+                        setlawyerid(row.lawyer_id);
+
+                        setlawyermodal(true);
+                      }}
+                    >
+                       Plaint lawyer Details{" "}
+                    </Button>
                       </StyledTableCell>
-                      <StyledTableCell align="center" disabled={row.verification_status==1?0:1}>
-                        {row.fee_status!=1?
-                        <Button variant="outlined" color="primary" disabled={row.fees_paid==1?0:1} onClick={()=>{
-                          verifyFees(row);
-                      }}>
-                      Verify Fees
-                  </Button> : 
-                  
-                  <p>Verified</p>
-                  
-                  };
-                      
+                      <StyledTableCell  align="center">
+                      <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => {
+                        setlawyerid(row.def_lawyer_id);
+
+                        setlawyermodal(true);
+                      }}
+                    >
+                       Defendant lawyer Details{" "}
+                    </Button>
+                    </StyledTableCell>
+                    <StyledTableCell align="center">
+                    <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => {
+                        setjudgeid(row.judge_id);
+
+                        setjudgemodal(true);
+                      }}
+                    >
+                       Judge Details{" "}
+                    </Button>
                       </StyledTableCell>
-                      <StyledTableCell align="center" >
-                        {row.case_status==null?
-                        <p>Yet to be assigned</p>:
-                        <p>{row.case_status}</p>}
+                    
+                      <StyledTableCell align="center">
+                        {row.judgement}
                       </StyledTableCell>
+                      <StyledTableCell align="center">
+                      <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => {
+                        setlawyerid(row.winner);
+
+                        setlawyermodal(true);
+                      }}
+                    >
+                       Won lawyer details{" "}
+                    </Button>
+                    </StyledTableCell>
                       </StyledTableRow>
                   ))}
                       </TableBody>
                       </Table>
+                      
                       </TableContainer>
-        )}
-        {judgemodalopen && (
+                      
+                     
+            )}
+
+{judgemodalopen && (
         <AboutJudge
           Handler={JudgemodalHandler}
           judgemodal={judgemodalopen}
@@ -318,6 +287,7 @@ export default function CustomizedTables({ value }) {
         />
       )}
         </Box>
+        
       
 )
 

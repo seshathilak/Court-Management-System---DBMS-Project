@@ -7,6 +7,7 @@ import ClientsPage from "./pages/Client/Clients";
 
 import LawyerAuth from "./pages/Lawyers/LawyerAuth";
 import LawyersPage from "./pages/Lawyers/Lawyers";
+import SignIn from "./pages/Lawyers/components/LawyerSignin";
 
 import JudgesAuth from "./pages/Judges/JudgeAuth";
 import JudgesPage from "./pages/Judges/Judges";
@@ -30,7 +31,7 @@ const Navigation = () => {
         <LawyersPage />
       </Route>
       <Route path="/lawyersauth" exact>
-        <LawyerAuth />
+        <SignIn />
       </Route>
       <Route path="/judgesauth" exact>
         <JudgesAuth />
@@ -49,3 +50,4 @@ const Navigation = () => {
 };
 
 export default Navigation;
+

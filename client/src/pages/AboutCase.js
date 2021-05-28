@@ -8,7 +8,9 @@ import ButtonBase from "@material-ui/core/ButtonBase";
 import axios from "axios";
 import Button from "@material-ui/core/Button";
 import Avatar from "@material-ui/core/Avatar";
+
 export default function SimpleModal({ Handler, casemodal, caseid }) {
+
   console.log(caseid);
   const classes = useStyles();
   const [caseData, setcaseData] = useState(false);
@@ -24,6 +26,7 @@ export default function SimpleModal({ Handler, casemodal, caseid }) {
     abtcase();
     return () => console.log("INFO UNMOUNTED");
   }, []);
+
   return (
     <div>
       <Modal
@@ -166,7 +169,7 @@ export default function SimpleModal({ Handler, casemodal, caseid }) {
 
 const useStyles = makeStyles((theme) => ({
   paper: {
-    position: "absolute",
+    position: "relative",
     width: 400,
     backgroundColor: theme.palette.background.paper,
     border: "2px solid #000",
@@ -175,7 +178,7 @@ const useStyles = makeStyles((theme) => ({
   },
 
   paper: {
-    marginTop: 200,
+    marginTop: 100,
     padding: theme.spacing(2),
     margin: "auto",
     maxWidth: 1000,

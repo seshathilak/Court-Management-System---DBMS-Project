@@ -1,4 +1,4 @@
-import React from "react";
+import React,{useState} from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -12,9 +12,33 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import AppBar from "../../MyAppbar";
+import { useHistory } from "react-router-dom";
+import Axios from "axios";
+import { setC_id } from "../../../redux/Action";
+import { setL_id } from "../../../redux/Action";
+import { useDispatch } from "react-redux";
 
 export default function SignIn({ Handler }) {
+
   const classes = useStyles();
+  const history = useHistory();
+
+  const [lid, setLid] = useState("");
+  const [pwd, setPwd] = useState("");
+  const [error, seterror] = useState(false);
+  const dispatch = useDispatch();
+
+  const login = () => {
+    Axios.post("/lawyer/login", {
+      lawyer_id: lid,
+      l_pwd: pwd,
+    }).then((response) => {
+      if (response.data) {
+        dispatch(setL_id(lid));
+        history.push("/lawyers");
+      } else seterror(true);
+    });
+  };
 
   return (
     <div>
@@ -35,10 +59,13 @@ export default function SignIn({ Handler }) {
               required
               fullWidth
               id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
+              label="Lawyer ID"
+              name="lawyer_id"
+              autoComplete="lawyer_id"
               autoFocus
+              onChange={(e) => {
+                setLid(e.target.value);
+              }}
             />
             <TextField
               variant="outlined"
@@ -50,20 +77,24 @@ export default function SignIn({ Handler }) {
               type="password"
               id="password"
               autoComplete="current-password"
+              onChange={(e) => {
+                setPwd(e.target.value);
+              }}
             />
 
-<Link to="/lawyers">
+{/* <Link to="/lawyers"> */}
               <Button
                 fullWidth
                 variant="contained"
                 color="primary"
                 className={classes.submit}
+                onClick={login}
                 // onClick={() => props.Handler()}
               >
                 Sign In
               </Button>
-            </Link>
-            <Grid container>
+            {/* </Link> */}
+            {/* <Grid container>
               <Grid item>
                 <Link variant="body2">
                   <div onClick={() => Handler()}>
@@ -71,6 +102,9 @@ export default function SignIn({ Handler }) {
                   </div>
                 </Link>
               </Grid>
+            </Grid> */}
+            <Grid container>
+              <Grid item>{error && "INCORRECT PASSWORD OR EMAIL "}</Grid>
             </Grid>
           </form>
         </div>

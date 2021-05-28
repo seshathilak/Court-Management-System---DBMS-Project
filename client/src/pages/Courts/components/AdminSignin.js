@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -12,9 +12,29 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import AppBar from "../../MyAppbar";
+import Axios from 'axios';
+import { setA_id } from "../../../redux/Action";
+import { useDispatch } from "react-redux";
+import { useHistory } from "react-router-dom";
 
 export default function SignIn({ Handler }) {
   const classes = useStyles();
+  const history = useHistory();
+  const [c_id, setCourt_id] = useState("");
+  const [pwd, setCourtPwd] = useState("");
+  const [error, seterror] = useState(false);
+  const dispatch = useDispatch();
+  const login = () => {
+    Axios.post("/court/login", {
+      court_id: c_id,
+      c_pwd: pwd,
+    }).then((response) => {
+      if (response.data) {
+        dispatch(setA_id(c_id));
+        history.push("/courts");
+      } else seterror(true);
+    });
+  };
 
   return (
     <div>
@@ -34,11 +54,14 @@ export default function SignIn({ Handler }) {
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
+              id="court_id"
+              label="Court Id"
+              name="court_id"
+              autoComplete="court_id"
               autoFocus
+              onChange={(e) => {
+                setCourt_id(e.target.value);
+              }}
             />
             <TextField
               variant="outlined"
@@ -50,20 +73,25 @@ export default function SignIn({ Handler }) {
               type="password"
               id="password"
               autoComplete="current-password"
+              onChange={(e) => {
+                setCourtPwd(e.target.value);
+              }}
             />
-            <Link to="/courts">
+            
               <Button
                 fullWidth
                 variant="contained"
                 color="primary"
                 className={classes.submit}
-                // onClick={() => props.Handler()}
+                onClick={login}
               >
                 Sign In
               </Button>
-            </Link>
           </form>
         </div>
+        <Grid container>
+              <Grid item>{error && "INCORRECT PASSWORD OR EMAIL "}</Grid>
+        </Grid>
       </Container>
     </div>
   );

@@ -24,6 +24,7 @@ import AboutJudge from "../../AboutJudge";
 import AboutClient from "../../AboutClient";
 import AboutCase from "../../AboutCase";
 
+
 //var changed=true;
 export default function CustomizedTables({ value }) {
     console.log("Open Hearing table for Admin");
@@ -32,7 +33,6 @@ export default function CustomizedTables({ value }) {
     const [rows, setrows] = useState([]);
     const [changed,setchanged] = useState(false);
     const [feesVerified,setFeesVerified] = useState(false);
-    const [verified,setVerified] = useState(false);
     const [lawyermodalopen, setlawyermodal] = useState(false);
     const [courtmodalopen, setcourtmodal] = useState(false);
     const [judgemodalopen, setjudgemodal] = useState(false);
@@ -94,45 +94,35 @@ export default function CustomizedTables({ value }) {
           },
         },
       }))(TableRow);
-        const verifyFees =(row)=>{
-          axios.post("/admin/update_client_fees_status",{
-            case_id:row.case_id,
-            court_id:row.court_id,
-            client_id:row.client_id,
-          }).then((res) => {
-            console.log(res.data);
-            setFeesVerified(true);
-            console.log(changed);
-            
-            
-        });
-        }
-        const verify =(row,status)=>{
-          axios.post("/admin/verify",{
-            case_id:row.case_id,
-            court_id:row.court_id,
-            client_id:row.client_id,
-            status:status
-          }).then((res) => {
-            console.log(res.data);
-            setVerified(true);
-            console.log(changed);
-            
-            
-        });
-        }
-        const notverify =(row,status)=>{
-          axios.post("/admin/notVerify",{
-            case_id:row.case_id,
-            court_id:row.court_id,
-            client_id:row.client_id,
+
+    const giveMerit = (id,merit_status,def_email,row) => {
+        console.log("haaaaaaaaaaaaaaaaaaaaaa");
+        //changed=true;
+        axios
+          .post("/admin/merit", {
+            case_id: id,
+            court_id: A_id,
+            def_client_email:def_email,
             case_title:row.case_title,
             case_desc:row.case_desc,
             case_type:row.case_type,
-            status:status
+            merit_status: merit_status
+        }).then((res) => {
+            console.log(res.data);
+            setchanged(true);
+            console.log(changed);
+            
+            
+        });
+      }
+        const verifyFees =(row)=>{
+          axios.post("/admin/update_def_fees_status",{
+            case_id:row.case_id,
+            court_id:row.court_id,
+            def_id:row.def_id,
           }).then((res) => {
             console.log(res.data);
-            setVerified(true);
+            setFeesVerified(true);
             console.log(changed);
             
             
@@ -147,7 +137,7 @@ export default function CustomizedTables({ value }) {
         //const plaintList = () => {
            // if(changed){
           axios
-            .post("/admin/cases", { court_id: A_id })
+            .post("/admin/hearing", { court_id: A_id })
             .then((response) => {
               console.log(response.data);
               setrows(response.data);
@@ -155,18 +145,18 @@ export default function CustomizedTables({ value }) {
             //changed=false;
        // };
            // }
-      },[changed,feesVerified,verified]);
+      },[changed,feesVerified]);
     
     
-      const renderVerification_Status=(verification,row)=>{
-            if(verification==1){
+      const renderMerit_status=(merit_status,row)=>{
+            if(merit_status==1){
                 return (
-                    <p>Verified</p>
+                    <p>Merited</p>
                 )
             }
-            else if(verification==0){
+            else if(merit_status==0){
                 return(
-                    <p>Not Verified</p>
+                    <p>Demerited</p>
                 )
             }
            
@@ -179,7 +169,7 @@ export default function CustomizedTables({ value }) {
         <Box>
         <Paper className={classes.paper}>
           <Box align="center">
-            <h1>CASES</h1>
+            <h1>HEARING CASES</h1>
           </Box>
         </Paper>
         <br></br>
@@ -191,16 +181,20 @@ export default function CustomizedTables({ value }) {
                   <TableRow>
                     <StyledTableCell align="center">CASE ID</StyledTableCell>
                     <StyledTableCell align="center">CLIENT DETAILS</StyledTableCell>
-                    <StyledTableCell align="center">CASE DETAILS</StyledTableCell>
                     <StyledTableCell align="center">
-                      VERIFICATION STATUS{" "}
+                      CASE DETAILS{" "}
+                    </StyledTableCell>
+                    <StyledTableCell align="center">JUDGE DETAILS</StyledTableCell>
+                    <StyledTableCell align="center">
+                      MERIT STATUS{" "}
                     </StyledTableCell>
                     <StyledTableCell align="center">
-                      FEES STATUS
+                      DEFENDANT DETAILS
                     </StyledTableCell>
                     <StyledTableCell align="center">
-                      CASE STATUS
+                      DEF FEES VERIFY
                     </StyledTableCell>
+                   
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -240,27 +234,59 @@ export default function CustomizedTables({ value }) {
                     </Button>
                       </StyledTableCell>
                       <StyledTableCell align="center">
-                          {row.verification !=null ? (
+                      <Button
+                      variant="outlined"
+                      color="secondary"
+                      onClick={() => {
+                        setjudgeid(row.judge_id);
+
+                        setjudgemodal(true);
+                      }}
+                    >
+                       Judge Details{" "}
+                    </Button>
+                      </StyledTableCell>
+                      <StyledTableCell align="center">
+                          {row.merit_status !=null ? (
                           PassThrough
                         ) : (
                             <div>
                             <Button variant="outlined" color="primary" onClick={()=>{
-                                verify(row,1);
+                                giveMerit(row.case_id,1,row.def_client_email);
+                                //changed=true;
+                               // row.merit_status=1;
+                               // useEffect();
                             }}>
-                            VERIFY
+                            Merit
                         </Button>
                     <Button variant="outlined" color="secondary" onClick={()=>{
-                        notverify(row,0);
+                        giveMerit(row.case_id,0,row.def_client_email,row);
                     }}>
-                          DENY
+                            DeMerit
                         </Button>
                         </div>
                         )}
-                        {renderVerification_Status(row.verification,row)} 
+                        {renderMerit_status(row.merit_status,row)} 
                       </StyledTableCell>
-                      <StyledTableCell align="center" disabled={row.verification_status==1?0:1}>
-                        {row.fee_status!=1?
-                        <Button variant="outlined" color="primary" disabled={row.fees_paid==1?0:1} onClick={()=>{
+                      <StyledTableCell align="center">
+                        {row.merit_status==1?
+                         <Button
+                         variant="outlined"
+                         color="secondary"
+                         onClick={() => {
+                           setclientid(row.def_id);
+   
+                           setclientmodal(true);
+                         }}
+                       >
+                          Defendant Details{" "}
+                       </Button>:
+                        <p>Not yet assigned</p>}
+                        
+                      </StyledTableCell>
+                      <StyledTableCell align="center" disabled={row.merit_status==1?0:1}>
+                        {row.def_fees_status!=1?
+                        <Button variant="outlined" color="primary" disabled={row.def_fees_paid==1?0:1} onClick={()=>{
                           verifyFees(row);
                       }}>
                       Verify Fees
@@ -271,18 +297,14 @@ export default function CustomizedTables({ value }) {
                   };
                       
                       </StyledTableCell>
-                      <StyledTableCell align="center" >
-                        {row.case_status==null?
-                        <p>Yet to be assigned</p>:
-                        <p>{row.case_status}</p>}
-                      </StyledTableCell>
                       </StyledTableRow>
                   ))}
                       </TableBody>
                       </Table>
                       </TableContainer>
         )}
-        {judgemodalopen && (
+
+{judgemodalopen && (
         <AboutJudge
           Handler={JudgemodalHandler}
           judgemodal={judgemodalopen}
