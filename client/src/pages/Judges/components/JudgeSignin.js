@@ -25,8 +25,9 @@ export default function SignIn({ Handler }) {
   const dispatch = useDispatch();
 
   const login = () => {
+    console.log(judge_id+pwd);
     Axios.post("/judge/login", {
-      judge_id: judge_id,
+      j_id: judge_id,
       pwd: pwd,
     }).then((response) => {
       console.log(response.data);
